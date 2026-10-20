@@ -1,32 +1,32 @@
 /* Book of Knowledge — app shell.
-   Paper, ink, Martinizing green, and the flag-tag colors CSRs already know. */
+   Workplace-calm: neutral surfaces, one sans family, Martinizing green as the only accent. */
 
 :root {
-  --paper: #F4F1E9;
-  --card: #FFFDF8;
-  --ink: #15202E;
-  --ink-2: #4B5565;
-  --ink-3: #7A8291;
-  --line: #DCD5C5;
-  --line-2: #E9E3D6;
-  --green: #0A7A3F;
-  --green-ink: #075C2F;
-  --green-wash: #E3F0E6;
-  --red: #C2323C;
-  --red-wash: #F8E4E4;
-  --orange: #D9741C;
-  --blue: #1F5BB5;
-  --plum: #7A3E8F;
-  --gap: #F6DC6B;
-  --gap-ink: #4A3B00;
-  --gap-wash: #FDF6D3;
-  --bar: rgba(244, 241, 233, .86);
-  --shadow: 0 1px 0 rgba(21,32,46,.05), 0 8px 24px -14px rgba(21,32,46,.3);
-  --shadow-up: 0 -1px 0 rgba(21,32,46,.06), 0 -10px 30px -18px rgba(21,32,46,.35);
-  --radius: 14px;
+  --paper: #F5F6F7;
+  --card: #FEFEFE;
+  --ink: #1D232B;
+  --ink-2: #4A5361;
+  --ink-3: #737D8C;
+  --line: #E1E4E8;
+  --line-2: #EDEFF2;
+  --green: #127A47;
+  --green-ink: #0E6339;
+  --green-wash: #EEF5F1;
+  --red: #B42318;
+  --red-wash: #FDF1F0;
+  --orange: #A15C07;
+  --blue: #2F5FA7;
+  --plum: #6B4F8A;
+  --gap: #F0C64A;
+  --gap-ink: #6B4A00;
+  --gap-wash: #FFF9E8;
+  --bar: rgba(245, 246, 247, .9);
+  --shadow: 0 1px 2px rgba(16,24,40,.05);
+  --shadow-up: 0 -1px 0 rgba(16,24,40,.05), 0 -8px 24px -16px rgba(16,24,40,.25);
+  --radius: 10px;
   --side: 252px;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --display: "Archivo", system-ui, sans-serif;
+  --display: var(--body);
   --body: "Atkinson Hyperlegible Next", system-ui, sans-serif;
   --on-accent: #FFFDF8;
   --on-gap: #3A2F00;
@@ -35,21 +35,21 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #12161C; --card: #1A2029; --ink: #ECE8DF; --ink-2: #B5BCC7; --ink-3: #858D99;
-    --line: #2E3642; --line-2: #252C36; --green: #3FB873; --green-ink: #7CD6A0; --green-wash: #17301F;
-    --red: #EF6A6F; --red-wash: #3A1D20; --orange: #F29A4A; --blue: #6E9DF0; --plum: #C38ADB;
-    --gap: #C9A92E; --gap-ink: #F6E7A8; --gap-wash: #2C2712; --on-accent: #0B1F12; --bar: rgba(18, 22, 28, .86);
-    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 26px -14px rgba(0,0,0,.7);
+    --paper: #14171B; --card: #1B1F25; --ink: #E7E9EC; --ink-2: #B3BAC4; --ink-3: #8B939F;
+    --line: #2B3139; --line-2: #22272E; --green: #4DBA85; --green-ink: #86D4AE; --green-wash: #1A2A22;
+    --red: #F07A72; --red-wash: #33201F; --orange: #E3A55B; --blue: #86A9E0; --plum: #B9A3D6;
+    --gap: #C9A440; --gap-ink: #F1DE9E; --gap-wash: #2A2517; --on-accent: #0B1F12; --bar: rgba(20, 23, 27, .9);
+    --shadow: 0 1px 2px rgba(0,0,0,.35);
     --shadow-up: 0 -1px 0 rgba(255,255,255,.04), 0 -10px 30px -18px rgba(0,0,0,.8);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #12161C; --card: #1A2029; --ink: #ECE8DF; --ink-2: #B5BCC7; --ink-3: #858D99;
-  --line: #2E3642; --line-2: #252C36; --green: #3FB873; --green-ink: #7CD6A0; --green-wash: #17301F;
-  --red: #EF6A6F; --red-wash: #3A1D20; --orange: #F29A4A; --blue: #6E9DF0; --plum: #C38ADB;
-  --gap: #C9A92E; --gap-ink: #F6E7A8; --gap-wash: #2C2712; --on-accent: #0B1F12; --bar: rgba(18, 22, 28, .86);
-  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 26px -14px rgba(0,0,0,.7);
+  --paper: #14171B; --card: #1B1F25; --ink: #E7E9EC; --ink-2: #B3BAC4; --ink-3: #8B939F;
+    --line: #2B3139; --line-2: #22272E; --green: #4DBA85; --green-ink: #86D4AE; --green-wash: #1A2A22;
+    --red: #F07A72; --red-wash: #33201F; --orange: #E3A55B; --blue: #86A9E0; --plum: #B9A3D6;
+    --gap: #C9A440; --gap-ink: #F1DE9E; --gap-wash: #2A2517; --on-accent: #0B1F12; --bar: rgba(20, 23, 27, .9);
+    --shadow: 0 1px 2px rgba(0,0,0,.35);
   --shadow-up: 0 -1px 0 rgba(255,255,255,.04), 0 -10px 30px -18px rgba(0,0,0,.8);
   color-scheme: dark;
 }
@@ -548,7 +548,7 @@ a.topic:hover { border-color: var(--green); color: var(--green-ink); }
 
 /* ═══════════ Design pass 2026-10-20: hallmark audit + component scout ═══════════ */
 
-/* Archivo carries the display voice only; body and UI are Atkinson Hyperlegible Next */
+/* Display and body share Atkinson Hyperlegible Next; mono is kept for source lines only */
 .brand-text b, .topbar-title, .searchcard-label, .ticket h2, .panel-title, .claim-day, .wday .d,
 .bcat h2, .plan-step h2, .stat b, .avatar { font-family: var(--display); }
 .stat b, .claim-time, .rv-meta, .badge, .steps li::before, .timer-clock, .gap-item::before { font-variant-numeric: tabular-nums; }
@@ -637,3 +637,85 @@ a.topic:hover { border-color: var(--green); color: var(--green-ink); }
   .ticket-foot { padding: 0 18px 0 22px; }
   .ta-list li[role="option"] { padding: 10px; }
 }
+
+
+/* ═══════════ Calm pass 2026-10-20: plain type, thin borders, neutral surfaces ═══════════ */
+
+/* One family. Sentence case, normal width, no all-caps display type */
+.brand-text b, .topbar-title, .searchcard-label, .ticket h2, .panel-title, .claim-day, .wday .d,
+.bcat h2, .plan-step h2, .stat b, .avatar { font-stretch: normal; text-transform: none; letter-spacing: -.01em; }
+.brand-text b { font-size: 15px; font-weight: 700; }
+.brand-text small { font-size: 12px; font-weight: 400; color: var(--ink-3); }
+.topbar-title { font-size: 17px; font-weight: 700; }
+.searchcard-label { font-size: 18px; font-weight: 700; margin-bottom: 10px; line-height: 1.3; }
+.ticket h2 { font-size: 24px; font-weight: 700; line-height: 1.25; margin-bottom: 10px; }
+.panel-title { font-size: 16px; font-weight: 700; }
+.claim-day { font-size: 32px; font-weight: 700; line-height: 1.15; }
+.claim-time { font-family: var(--body); font-size: 15px; font-weight: 600; }
+.claim-head { background: var(--line-2); color: var(--ink-2); font: 600 13px var(--body); text-transform: none; letter-spacing: 0; padding: 9px 20px; }
+.wday .d { font-size: 15px; font-weight: 700; }
+.bcat h2 { font-size: 15px; font-weight: 700; }
+.plan-step h2 { font-size: 17px; }
+.stat b { font-size: 26px; }
+.say { font-size: 17px; font-weight: 400; background: var(--line-2); }
+.ticket .say { color: var(--ink); }
+.check-q p { font-size: 17px; }
+.timer-clock { font-family: var(--body); font-variant-numeric: tabular-nums; }
+
+/* Thin borders, light shadows */
+.searchcard { box-shadow: none; padding: 18px; }
+.searchfield { border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+.searchfield:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-wash); }
+.btn, .tool, .outage-pick button, .opt, .wday { border-width: 1px; }
+.btn:hover:not(:disabled), .tool:hover, .outage-pick button:hover { border-color: var(--ink-3); }
+.ticket, .claim { box-shadow: var(--shadow); }
+.tool i { color: var(--ink-3); }
+.tool-red { border-color: var(--line); }
+.tool-red i { color: var(--ink-3); }
+
+/* Navigation: plain list, neutral active state */
+.nav-group { font-size: 12px; font-weight: 600; color: var(--ink-3); margin: 18px 10px 4px; }
+.side-nav a { font-weight: 500; color: var(--ink-2); padding: 8px 10px; border-radius: 8px; }
+.side-nav a i { font-size: 18px; color: var(--ink-3); }
+.side-nav a[aria-current="page"] { background: var(--line-2); color: var(--ink); font-weight: 600; }
+.side-nav a[aria-current="page"] i { color: var(--green); }
+.side-foot { gap: 8px; }
+.loc-label { font-size: 12px; font-weight: 600; color: var(--ink-3); margin: 0 4px; }
+.side-link { font-size: 13px; color: var(--ink-3); text-decoration: none; padding: 4px; }
+.side-link:hover, .side-link[aria-current="page"] { color: var(--ink); text-decoration: underline; }
+.sheet-head { margin-top: 14px; }
+.sheet-head:first-of-type { margin-top: 0; }
+
+/* Segmented controls: neutral selection, no green fills */
+.seg { background: var(--line-2); border-color: var(--line); }
+.seg button[aria-checked="true"], .seg-store button[aria-checked="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px rgba(16,24,40,.12); }
+.store-chip { color: var(--ink-2); font-weight: 600; }
+
+/* Fewer colors: neutral borders and labels; color only for status */
+.wday.is-route { border-color: var(--line); background: var(--card); }
+.wday.is-route .r { color: var(--ink-2); }
+.wday.is-flex { border-color: var(--line); border-style: dashed; }
+.wday.is-flex .r { color: var(--ink-3); }
+.wday.is-picked { box-shadow: 0 0 0 2px var(--ink-3); }
+.outage-pick button i { background: var(--line-2); color: var(--ink-2); }
+.outage-pick button[aria-pressed="true"] { border-color: var(--ink-3); box-shadow: none; background: var(--line-2); }
+.stat i { color: var(--ink-3); }
+.avatar { background: var(--line-2); color: var(--ink); }
+.progress span.on { background: var(--green); }
+.progress span.now { background: var(--ink-3); }
+.ta-list li[aria-selected="true"], .ta-list li[role="option"]:hover { background: var(--line-2); }
+.ta-list li[aria-selected="true"] i { color: var(--ink-2); }
+.steps li.is-current { background: var(--line-2); }
+.store-note.is-mine b::after { color: var(--ink-3); }
+.check-a { background: var(--line-2); }
+.fcard-back { background: var(--line-2); border-color: var(--line); }
+.plan-step.is-here { border: 1px solid var(--ink-3); }
+.plan-step.is-here .plan-kicker { color: var(--ink-2); }
+.gapnote, .gap-item { background: var(--gap-wash); }
+.gap-item { border-color: color-mix(in srgb, var(--gap) 50%, var(--line)); }
+.badge { background: var(--line-2); color: var(--ink-2); font-weight: 600; }
+.badge-green { background: var(--green); color: var(--on-accent); }
+.tabbar [aria-current="page"] { color: var(--ink); }
+.tabbar [aria-current="page"] i { color: var(--green); }
+.content > section:not([hidden]) { animation-duration: .12s; }
+.tool { font-weight: 600; }

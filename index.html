@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Book of Knowledge</title>
   <meta name="description" content="Prototype counter assistant for Martinizing Cleaners of Flower Mound CSRs.">
-  <meta name="theme-color" content="#0A7A3F">
+  <meta name="theme-color" content="#F5F6F7">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -16,10 +16,10 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Atkinson+Hyperlegible+Next:wght@400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/regular/style.css">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/fill/style.css">
-  <link rel="stylesheet" href="assets/styles.css?v=12">
+  <link rel="stylesheet" href="assets/styles.css?v=14">
 </head>
 <body>
 <div class="app">
@@ -31,28 +31,26 @@
       <span class="brand-text"><b>Book of Knowledge</b><small>Martinizing · Flower Mound</small></span>
     </a>
     <nav class="side-nav">
-      <div class="nav-group">At the counter</div>
-      <a href="#ask" data-tab="ask"><i class="ph ph-magnifying-glass"></i>Ask</a>
-      <a href="#ready" data-tab="ready"><i class="ph ph-clock"></i>Ready by</a>
-      <a href="#routes" data-tab="routes"><i class="ph ph-truck"></i>Routes</a>
-      <a href="#outage" data-tab="outage"><i class="ph ph-warning-octagon"></i>Something broke</a>
-      <a href="#scripts" data-tab="scripts"><i class="ph ph-chat-text"></i>What to say</a>
-      <div class="nav-group">Learn</div>
+      <a href="#ask" data-tab="ask"><i class="ph ph-house"></i>Home</a>
+      <a href="#browse" data-tab="browse"><i class="ph ph-book-open"></i>Articles</a>
+      <a href="#scripts" data-tab="scripts"><i class="ph ph-chat-text"></i>Scripts</a>
       <a href="#training" data-tab="training"><i class="ph ph-graduation-cap"></i>Training</a>
-      <a href="#browse" data-tab="browse"><i class="ph ph-books"></i>Browse the book</a>
-      <div class="nav-group">For Enrique</div>
-      <a href="#review" data-tab="review"><i class="ph ph-seal-check"></i>Review<span class="badge badge-green" data-review-count hidden></span></a>
-      <a href="#gaps" data-tab="gaps"><i class="ph ph-note-pencil"></i>Gaps<span class="badge" data-gap-count></span></a>
-      <a href="#plan" data-tab="plan"><i class="ph ph-map-trifold"></i>The plan</a>
+      <div class="nav-group">Tools</div>
+      <a href="#ready" data-tab="ready"><i class="ph ph-calendar-check"></i>Promise dates</a>
+      <a href="#routes" data-tab="routes"><i class="ph ph-truck"></i>Delivery routes</a>
+      <a href="#outage" data-tab="outage"><i class="ph ph-wifi-slash"></i>Outages</a>
+      <div class="nav-group">Admin</div>
+      <a href="#review" data-tab="review"><i class="ph ph-tray"></i>Review queue<span class="badge badge-green" data-review-count hidden></span></a>
+      <a href="#gaps" data-tab="gaps"><i class="ph ph-list-checks"></i>Content gaps<span class="badge" data-gap-count></span></a>
     </nav>
     <div class="side-foot">
-      <div class="list-head"><span>My store</span></div>
-      <div class="seg seg-store seg-full" role="radiogroup" aria-label="Your store">
+      <label class="loc-label" for="loc-select">Location</label>
+      <div class="seg seg-store seg-full" role="radiogroup" aria-label="Location" id="loc-select">
         <button role="radio" data-store="plant" aria-checked="true">Plant</button>
         <button role="radio" data-store="target" aria-checked="false">Target</button>
       </div>
       <button class="btn btn-ghost btn-block" data-install hidden><i class="ph ph-download-simple"></i>Install app</button>
-      <p class="proto-note">Prototype · Kingside Group</p>
+      <a class="side-link" href="#plan" data-tab="plan">About this prototype</a>
     </div>
   </aside>
 
@@ -63,7 +61,7 @@
       <h1 class="topbar-title" id="view-title">Ask</h1>
       <form class="topbar-search ta" id="top-search" role="search" autocomplete="off">
         <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-        <input type="search" placeholder="Search the book" aria-label="Search the book"
+        <input type="search" placeholder="Search articles" aria-label="Search articles"
           role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="top-ta">
         <kbd>/</kbd>
         <ul class="ta-list" id="top-ta" role="listbox" aria-label="Matching pages" hidden></ul>
@@ -75,11 +73,11 @@
       <!-- ASK / HOME -->
       <section data-view="ask">
         <form class="searchcard" id="ask-form" autocomplete="off" role="search">
-          <label for="ask-input" class="searchcard-label">What's the customer asking?</label>
+          <label for="ask-input" class="searchcard-label">Search the knowledge base</label>
           <div class="ta">
             <div class="searchfield">
               <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-              <input id="ask-input" type="search" placeholder="Type it the way they said it" enterkeyhint="search"
+              <input id="ask-input" type="search" placeholder="Type the customer's question" enterkeyhint="search"
                 role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ask-ta">
               <button type="submit" class="btn btn-primary" aria-label="Look it up"><span class="hide-sm">Look it up</span><i class="ph ph-arrow-right show-sm"></i></button>
             </div>
@@ -90,11 +88,10 @@
         <div id="answer"></div>
 
         <div id="home">
-          <nav class="toolrow" aria-label="Counter tools">
-            <a class="tool" href="#ready"><i class="ph-fill ph-clock"></i>Ready by</a>
-            <a class="tool" href="#routes"><i class="ph-fill ph-truck"></i>Route days</a>
-            <a class="tool tool-red" href="#outage"><i class="ph-fill ph-warning-octagon"></i>Something broke</a>
-            <a class="tool" href="#scripts"><i class="ph-fill ph-chat-text"></i>What to say</a>
+          <nav class="toolrow" aria-label="Tools">
+            <a class="tool" href="#ready"><i class="ph ph-calendar-check"></i>Promise dates</a>
+            <a class="tool" href="#routes"><i class="ph ph-truck"></i>Delivery routes</a>
+            <a class="tool" href="#outage"><i class="ph ph-wifi-slash"></i>Outages</a>
           </nav>
 
           <div class="list-block" id="recent-block" hidden>
@@ -103,7 +100,7 @@
           </div>
 
           <div class="list-block">
-            <div class="list-head"><span>Common at the counter</span></div>
+            <div class="list-head"><span>Frequently asked</span></div>
             <ul class="rows" id="common"></ul>
           </div>
         </div>
@@ -111,7 +108,7 @@
 
       <!-- READY BY -->
       <section data-view="ready" hidden>
-        <p class="view-sub">Enter the drop-off. Get the exact promise to say out loud.</p>
+        <p class="view-sub">Calculate when an order will be ready, based on drop-off day and time.</p>
         <div class="split">
           <form class="panel form" id="ready-form">
             <div class="field-row">
@@ -130,7 +127,7 @@
 
       <!-- ROUTES -->
       <section data-view="routes" hidden>
-        <p class="view-sub">Routes run in pairs. Pick the customer's route to see what comes back when.</p>
+        <p class="view-sub">Pickup and delivery days for each route.</p>
         <div class="panel">
           <div class="seg" role="radiogroup" aria-label="Route" id="route-seg">
             <button role="radio" data-route="mw" aria-checked="true">Mon / Wed route</button>
@@ -142,7 +139,7 @@
 
         <div class="split">
           <form class="panel form" id="instore-form">
-            <h2 class="panel-title">Dropped off in store, delivered home</h2>
+            <h2 class="panel-title">In-store drop-off, home delivery</h2>
             <div class="field-row">
               <label>Drop-off date<input type="date" name="date" required></label>
               <label>Time<input type="time" name="time" required></label>
@@ -161,7 +158,7 @@
 
       <!-- OUTAGE -->
       <section data-view="outage" hidden>
-        <p class="view-sub">Customer at the counter, system down. Pick what's not working.</p>
+        <p class="view-sub">Step-by-step procedures when a system stops working.</p>
         <div class="outage-pick" id="outage-pick">
           <button data-o="internet" type="button"><i class="ph ph-wifi-slash"></i>Internet / SPOT won't load</button>
           <button data-o="spotdown" type="button"><i class="ph ph-monitor"></i>SPOT is down</button>
@@ -172,13 +169,13 @@
 
       <!-- SCRIPTS -->
       <section data-view="scripts" hidden>
-        <p class="view-sub">The exact words from the manual. Tap to copy.</p>
+        <p class="view-sub">Approved wording from the CSR manual. Select a script to copy it.</p>
         <div class="script-grid" id="scripts"></div>
       </section>
 
       <!-- TRAINING -->
       <section data-view="training" hidden>
-        <p class="view-sub">The five-day manual, on screen. A daily sign-off replaces the paper sheet, and a 3-question check brings back whatever the trainee missed.</p>
+        <p class="view-sub">Five-day CSR training: daily sign-off and review questions for each trainee.</p>
         <div class="panel trainee-bar" id="trainee-bar"></div>
         <div id="training-body"></div>
         <div class="list-block">
@@ -190,7 +187,7 @@
 
       <!-- REVIEW (owner) -->
       <section data-view="review" hidden>
-        <p class="view-sub">Enrique's weekly ten minutes: questions from the counter, answers someone flagged, and pages to verify. Most-viewed pages rise to the top.</p>
+        <p class="view-sub">Questions from staff, flagged answers, and articles that need verification.</p>
         <div class="stats" id="review-stats"></div>
         <div class="list-block">
           <div class="list-head"><span>From the counter</span></div>
@@ -215,7 +212,7 @@
 
       <!-- GAPS -->
       <section data-view="gaps" hidden>
-        <p class="view-sub">Questions the manual raises but doesn't answer, found while building this prototype. Each one is a sentence or two from Enrique.</p>
+        <p class="view-sub">Topics the CSR manual does not fully cover. Each needs an answer from the owner.</p>
         <ol class="gaps" id="gaps"></ol>
         <p class="muted">Questions asked at the counter that the book couldn't answer go to <a href="#review">Review</a>.</p>
       </section>
@@ -260,10 +257,10 @@
 
   <!-- Bottom tab bar (phone) -->
   <nav class="tabbar" aria-label="Main">
-    <a href="#ask" data-tab="ask"><i class="ph ph-magnifying-glass"></i><span>Ask</span></a>
-    <a href="#ready" data-tab="ready"><i class="ph ph-clock"></i><span>Ready by</span></a>
-    <a href="#routes" data-tab="routes"><i class="ph ph-truck"></i><span>Routes</span></a>
-    <a href="#outage" data-tab="outage"><i class="ph ph-warning-octagon"></i><span>Broke</span></a>
+    <a href="#ask" data-tab="ask"><i class="ph ph-house"></i><span>Home</span></a>
+    <a href="#browse" data-tab="browse"><i class="ph ph-book-open"></i><span>Articles</span></a>
+    <a href="#scripts" data-tab="scripts"><i class="ph ph-chat-text"></i><span>Scripts</span></a>
+    <a href="#training" data-tab="training"><i class="ph ph-graduation-cap"></i><span>Training</span></a>
     <button type="button" data-tab="more" id="more-btn" aria-haspopup="dialog"><i class="ph ph-dots-three-circle"></i><span>More</span></button>
   </nav>
 
@@ -271,17 +268,21 @@
   <div class="sheet-scrim" id="sheet-scrim" hidden></div>
   <div class="sheet" id="more-sheet" role="dialog" aria-modal="true" aria-label="More" hidden>
     <div class="sheet-grab" aria-hidden="true"></div>
+    <div class="list-head sheet-head"><span>Tools</span></div>
     <ul class="rows sheet-rows">
-      <li><a href="#scripts" data-tab="scripts"><i class="ph ph-chat-text"></i><span>What to say</span><i class="ph ph-caret-right chev"></i></a></li>
-      <li><a href="#training" data-tab="training"><i class="ph ph-graduation-cap"></i><span>Training</span><i class="ph ph-caret-right chev"></i></a></li>
-      <li><a href="#browse" data-tab="browse"><i class="ph ph-books"></i><span>Browse the book</span><i class="ph ph-caret-right chev"></i></a></li>
-      <li><a href="#review" data-tab="review"><i class="ph ph-seal-check"></i><span>Review (Enrique)</span><span class="badge badge-green" data-review-count hidden></span><i class="ph ph-caret-right chev"></i></a></li>
-      <li><a href="#gaps" data-tab="gaps"><i class="ph ph-note-pencil"></i><span>Gaps for Enrique</span><span class="badge" data-gap-count></span><i class="ph ph-caret-right chev"></i></a></li>
-      <li><a href="#plan" data-tab="plan"><i class="ph ph-map-trifold"></i><span>The plan</span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#ready" data-tab="ready"><i class="ph ph-calendar-check"></i><span>Promise dates</span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#routes" data-tab="routes"><i class="ph ph-truck"></i><span>Delivery routes</span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#outage" data-tab="outage"><i class="ph ph-wifi-slash"></i><span>Outages</span><i class="ph ph-caret-right chev"></i></a></li>
+    </ul>
+    <div class="list-head sheet-head"><span>Admin</span></div>
+    <ul class="rows sheet-rows">
+      <li><a href="#review" data-tab="review"><i class="ph ph-tray"></i><span>Review queue</span><span class="badge badge-green" data-review-count hidden></span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#gaps" data-tab="gaps"><i class="ph ph-list-checks"></i><span>Content gaps</span><span class="badge" data-gap-count></span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#plan" data-tab="plan"><i class="ph ph-info"></i><span>About this prototype</span><i class="ph ph-caret-right chev"></i></a></li>
     </ul>
     <div class="sheet-section">
-      <div class="list-head"><span>My store</span></div>
-      <div class="seg seg-store seg-full" role="radiogroup" aria-label="Your store">
+      <div class="list-head"><span>Location</span></div>
+      <div class="seg seg-store seg-full" role="radiogroup" aria-label="Location">
         <button role="radio" data-store="plant" aria-checked="true">Plant</button>
         <button role="radio" data-store="target" aria-checked="false">Target</button>
       </div>
@@ -295,7 +296,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 
-<script src="assets/knowledge.js?v=12"></script>
-<script src="assets/app.js?v=12"></script>
+<script src="assets/knowledge.js?v=14"></script>
+<script src="assets/app.js?v=14"></script>
 </body>
 </html>

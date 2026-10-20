@@ -135,7 +135,7 @@
 
   function articleHTML(a, fb = "") {
     let h = `<article class="ticket" style="${catVar(a)}">
-      <div class="ticket-top">${flag(a)}<span class="ticket-id">No. ${String(KB.indexOf(a) + 1).padStart(3, "0")}</span></div>
+      <div class="ticket-top">${flag(a)}</div>
       <h2>${esc(a.title)}</h2>${vbadge(a)}`;
     if (a.say) h += `<div class="section-label">Say this</div><blockquote class="say">${esc(a.say)}</blockquote>`;
     if (a.do) h += `<div class="section-label">${a.say ? "Then" : "Do this"}${a.do.length > 1 ? `<span class="label-hint">Tap a step to check it off</span>` : ""}</div>
@@ -149,7 +149,7 @@
         `<div class="store-note${s === myStore ? " is-mine" : ""}" data-store="${s}"><b>${s === "plant" ? "Plant" : "Target"}</b>${esc(a.stores[s] || "Same as the other store.")}</div>`).join("")}</div>`;
     }
     if (a.gap) h += `<div class="gapnote"><b>Not in the book yet · for Enrique</b>${esc(a.gap)}</div>`;
-    const toolLink = { ready: ["#ready", "Open the ready-by calculator"], routes: ["#routes", "Open the route days"], outage: ["#outage/" + a.id, "Walk through it step by step"] }[a.tool];
+    const toolLink = { ready: ["#ready", "Open promise dates"], routes: ["#routes", "Open delivery routes"], outage: ["#outage/" + a.id, "Open the procedure"] }[a.tool];
     h += `<div class="ticket-foot"><div class="tf-row"><span class="src">Source · ${esc(a.src)}</span>${toolLink ? `<a class="btn btn-sm" href="${toolLink[0]}">${toolLink[1]}<i class="ph ph-arrow-right"></i></a>` : ""}</div>${fb}</div></article>`;
     return h;
   }
@@ -165,10 +165,10 @@
 
   // ── Typeahead: matching pages (and tools) appear as you type ──
   const TOOLS = [
-    { href: "#ready", label: "Ready-by calculator", icon: "ph-clock", kw: ["ready", "promise", "when", "done", "turnaround"] },
-    { href: "#routes", label: "Route days", icon: "ph-truck", kw: ["route", "delivery", "deliver", "driver"] },
-    { href: "#outage", label: "Something broke", icon: "ph-warning-octagon", kw: ["down", "broke", "internet", "wifi", "spot", "card", "machine", "outage", "offline", "frozen"] },
-    { href: "#scripts", label: "What to say", icon: "ph-chat-text", kw: ["say", "script", "words", "greeting"] },
+    { href: "#ready", label: "Promise dates", icon: "ph-calendar-check", kw: ["ready", "promise", "when", "done", "turnaround"] },
+    { href: "#routes", label: "Delivery routes", icon: "ph-truck", kw: ["route", "delivery", "deliver", "driver"] },
+    { href: "#outage", label: "Outages", icon: "ph-wifi-slash", kw: ["down", "broke", "internet", "wifi", "spot", "card", "machine", "outage", "offline", "frozen"] },
+    { href: "#scripts", label: "Scripts", icon: "ph-chat-text", kw: ["say", "script", "words", "greeting"] },
     { href: "#training", label: "Training", icon: "ph-graduation-cap", kw: ["train", "quiz", "trainee"] }
   ];
   function taPages(q) {
@@ -246,7 +246,12 @@
   }
   $("#clear-recent").addEventListener("click", () => { store.set("recent", []); renderRecent(); });
 
-  const backRow = `<div class="back-row"><a href="#ask"><i class="ph ph-arrow-left"></i>Home</a></div>`;
+  const backRow = `<div class="back-row"><a href="#ask" data-back><i class="ph ph-arrow-left"></i>Back</a></div>`;
+  // "Back" returns to wherever the user came from (Articles, search, a tool), Home as a fallback
+  answer.addEventListener("click", e => {
+    const b = e.target.closest("[data-back]"); if (!b) return;
+    if (sessionNav > 1) { e.preventDefault(); history.back(); }
+  });
   const searchcard = $("#ask-form");
   // On an answer, the search shrinks to a slim bar so the answer starts near the top
   function setAnswer(html) { home.hidden = true; searchcard.classList.add("is-compact"); answer.innerHTML = backRow + html; }
@@ -625,7 +630,7 @@
     const bar = $("#trainee-bar");
     if (!all.length || !tData()) {
       bar.innerHTML = `<form class="trainee-new" id="trainee-new">
-        <label for="trainee-name"><b>Who's training?</b><span class="muted">Start a new CSR on Day 1.</span></label>
+        <label for="trainee-name"><b>Add a trainee</b><span class="muted">Training starts on Day 1.</span></label>
         <div class="searchfield"><i class="ph ph-user-plus" aria-hidden="true"></i><input id="trainee-name" placeholder="Trainee's first name" required><button class="btn btn-primary" type="submit">Start</button></div>
       </form>`;
       return;
@@ -652,7 +657,7 @@
       const nd = nextDue(t);
       body = `<div class="check-empty"><i class="ph-fill ph-check-circle"></i><b>All caught up.</b><span>Next check ${isFinite(nd) && nd > Date.now() ? fmtLong(new Date(nd)) : "tomorrow"}.</span></div>`;
     } else if (i >= queue.length) {
-      body = `<div class="check-empty"><i class="ph-fill ph-confetti"></i><b>${check.got} of ${queue.length} right.</b><span>${check.got === queue.length ? "Those come back in a few days to make them stick." : "The missed ones come back tomorrow."}</span></div>`;
+      body = `<div class="check-empty"><i class="ph-fill ph-check-circle"></i><b>${check.got} of ${queue.length} right.</b><span>${check.got === queue.length ? "Those come back in a few days to make them stick." : "The missed ones come back tomorrow."}</span></div>`;
     } else {
       const c = TRAINING[queue[i]];
       body = `<div class="check-q"><span class="check-n">Question ${i + 1} of ${queue.length} · Day ${c.day}</span><p>${esc(c.q)}</p></div>
@@ -661,12 +666,12 @@
              <div class="decision"><button class="btn btn-primary" data-chk="got"><i class="ph ph-check"></i>Got it</button><button class="btn" data-chk="miss"><i class="ph ph-arrow-counter-clockwise"></i>Missed it</button></div>`
           : `<div class="decision"><button class="btn btn-primary" data-chk="reveal">Show answer</button></div>`}`;
     }
-    return `<div class="panel check-card"><h2 class="panel-title"><i class="ph ph-lightning"></i>Today's check</h2>${body}</div>`;
+    return `<div class="panel check-card"><h2 class="panel-title"><i class="ph ph-list-checks"></i>Daily review</h2>${body}</div>`;
   }
 
   function renderDays() {
     const t = tData(), now = trainingDay(t), trainer = store.get("trainerName", "");
-    return `<div class="panel"><h2 class="panel-title"><i class="ph ph-signature"></i>Five-day sign-off</h2><ol class="days">${DAYS.map(d => {
+    return `<div class="panel"><h2 class="panel-title"><i class="ph ph-signature"></i>Training sign-off</h2><ol class="days">${DAYS.map(d => {
       const s = t.signed[d.day];
       const topics = d.topics.map(([label, id]) => id ? `<a class="topic" href="#a/${id}">${esc(label)}</a>` : `<span class="topic">${esc(label)}</span>`).join("");
       let foot;
@@ -804,7 +809,7 @@
         ${s.k === "ok"
           ? `<button class="btn btn-sm btn-ghost" data-verify="${a.id}" data-on="0">Unverify</button>`
           : `<button class="btn btn-sm btn-primary" data-verify="${a.id}" data-on="1"><i class="ph ph-seal-check"></i>${s.k === "due" ? "Re-verify" : "Verify"}</button>`}
-      </div>`).join("") : `<p class="muted">Every page is verified. Nice.</p>`;
+      </div>`).join("") : `<p class="muted">All articles are verified.</p>`;
   }
   $("#review-seg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; reviewFilter = b.dataset.f; renderReview(); });
   $("#review-list").addEventListener("click", e => {
@@ -819,9 +824,9 @@
   });
 
   // ── Router ──
-  const TITLES = { ask: "Ask", ready: "Ready by", routes: "Route days", outage: "Something broke", scripts: "What to say",
-    training: "Training", browse: "Browse the book", gaps: "Gaps for Enrique", plan: "The plan", review: "Review" };
-  const MORE = ["scripts", "training", "browse", "gaps", "plan", "review"];
+  const TITLES = { ask: "Home", ready: "Promise dates", routes: "Delivery routes", outage: "Outages", scripts: "Scripts",
+    training: "Training", browse: "Articles", gaps: "Content gaps", plan: "About this prototype", review: "Review queue" };
+  const MORE = ["ready", "routes", "outage", "gaps", "plan", "review"];
 
   function go(hash) { if (location.hash === hash) route_(); else location.hash = hash; }
   function setIcon(el, on) {
@@ -840,13 +845,14 @@
     $(".topbar").classList.toggle("on-ask", view === "ask");
     closeSheet(); closeAskTA(); closeTopTA();
   }
+  function showAnswerIn(view) { $$("[data-view]").forEach(s => s.hidden = s.dataset.view !== view); $(".topbar").classList.remove("on-ask"); }
   function route_() {
     const h = decodeURIComponent(location.hash.slice(1));
     const [view, ...rest] = h.split("/");
     const arg = rest.join("/");
     if (view !== "outage") stopTimer();
     switch (view) {
-      case "a": show("ask", byId[arg] ? CATS[byId[arg].cat].label : null); renderArticle(arg); break;
+      case "a": show("browse", "Articles"); showAnswerIn("ask"); renderArticle(arg); break;
       case "ready": show("ready"); renderReady(); break;
       case "routes": show("routes"); renderWeek(); break;
       case "outage": show("outage"); renderOutage(arg); break;
@@ -854,7 +860,7 @@
       case "training": show("training"); check = null; renderTrainingBody(); renderTraining(); break;
       case "gaps": show("gaps"); break;
       case "review": show("review"); renderReview(); break;
-      case "ask": show("ask", arg ? "Answer" : null); arg ? renderAsk(arg) : renderAskEmpty(); break;
+      case "ask": show("ask", arg ? "Search results" : null); arg ? renderAsk(arg) : renderAskEmpty(); break;
       default: show("ask"); renderAskEmpty();
     }
     if (view === "outage" && arg && window.innerWidth <= 760) requestAnimationFrame(() => $("#outage-out").scrollIntoView({ block: "start" }));
@@ -899,7 +905,8 @@
     window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
   }
 
-  window.addEventListener("hashchange", route_);
+  let sessionNav = 0;
+  window.addEventListener("hashchange", () => { sessionNav++; route_(); });
   updateCounts();
   setStore(myStore);
   route_();

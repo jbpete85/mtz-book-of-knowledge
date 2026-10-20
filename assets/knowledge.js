@@ -8,9 +8,9 @@ window.CATEGORIES = {
   pickup: { label: "Pickup", color: "var(--ink-3)" },
   special: { label: "Special items", color: "var(--ink-3)" },
   recovery: { label: "Service recovery", color: "var(--ink-3)" },
-  services: { label: "Services & routes", color: "var(--ink-3)" },
-  outage: { label: "When things break", color: "var(--red)" },
-  phone: { label: "Phone & words", color: "var(--ink-3)" },
+  services: { label: "Services & delivery", color: "var(--ink-3)" },
+  outage: { label: "Outages", color: "var(--red)" },
+  phone: { label: "Phone & language", color: "var(--ink-3)" },
   team: { label: "Team policies", color: "var(--ink-3)" }
 };
 
