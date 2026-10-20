@@ -684,6 +684,16 @@ window.TRAINING = [
   { day: 5, q: "Customer needs it sooner than the promise time. What do you do?", a: "The manual doesn't say yet. It's on Enrique's list.", ref: "sooner" }
 ];
 
+// The five training days, from the outline at the top of each day in the CSR manual.
+// Each topic links to its page in the book where one exists.
+window.DAYS = [
+  { day: 1, theme: "Welcome, Policies & SPOT Basics", topics: [["Mission & values"], ["Dress code", "dress"], ["Time clock", "clock"], ["SPOT PIN", "pin"], ["GreenEarth", "green"], ["Customer lookup", "lookup"], ["Quick Receipts", "qr"]] },
+  { day: 2, theme: "Garments, Tags & the Customer", topics: [["Fabrics", "fabrics"], ["Care labels", "carelabel"], ["Heat seal labels", "hsl"], ["Flag tags", "flagtags"], ["Stains", "stain"], ["Wash & Fold", "washfold"], ["First Four & S.M.I.L.E.", "firstfour"]] },
+  { day: 3, theme: "Order Flow, Detailing & Alterations", topics: [["Detailing", "detail"], ["Racking", "rack"], ["Pickup", "pickup"], ["Alterations", "alteration"], ["Phone", "phone"]] },
+  { day: 4, theme: "Service Recovery & Special Items", topics: [["L.E.A.P.", "leap"], ["Coupons", "coupons"], ["Holdouts", "holdout"], ["Lost items", "lost"], ["Redo", "redo"], ["Issue Tracker", "issue"], ["Leather", "leather"], ["Wedding dress", "wedding"]] },
+  { day: 5, theme: "Services, How-To's & Final Review", topics: [["Morning deposit", "deposit"], ["Pickup & delivery", "pnd"], ["Up-selling", "upsell"], ["Internet down", "internet"], ["Transferring barcodes", "transfer"], ["Hospitality language", "hospitality"], ["Promise times", "promise"]] }
+];
+
 window.SUGGESTIONS = [
   "Customer wants to get on a delivery route",
   "The internet is down",

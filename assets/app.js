@@ -22,6 +22,51 @@
     catch { toast("Select the text to copy it"); }
   }
 
+  // ── Trust layer: verification, views, votes, Enrique's inbox (per device in the prototype) ──
+  const DAY_MS = 864e5, REVIEW_DAYS = 90;
+  const fmtShort = t => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  function ago(t) {
+    const m = Math.round((Date.now() - t) / 6e4);
+    if (m < 1) return "just now"; if (m < 60) return `${m} min ago`;
+    const h = Math.round(m / 60); if (h < 24) return `${h} hr ago`;
+    return fmtShort(t);
+  }
+  function vstatus(a) {
+    const v = store.get("verified", {})[a.id];
+    if (v && Date.now() > v.due) return { k: "due", icon: "ph-clock-countdown", label: "Needs review", detail: `Verified ${fmtShort(v.at)} · review was due ${fmtShort(v.due)}` };
+    if (v) return { k: "ok", icon: "ph-seal-check", label: "Verified by Enrique", detail: `${fmtShort(v.at)} · next review ${fmtShort(v.due)}` };
+    if (/call/i.test(a.src)) return { k: "unconfirmed", icon: "ph-question", label: "Unconfirmed", detail: "From the 10/19 call · Enrique to confirm" };
+    if (a.gap) return { k: "partial", icon: "ph-warning-circle", label: "Missing pieces", detail: "Part of the answer isn't in the manual yet" };
+    return { k: "source", icon: "ph-book-open", label: "From the manual", detail: "Not reviewed by Enrique yet" };
+  }
+  const STATUS_ORDER = { due: 0, unconfirmed: 1, partial: 2, source: 3, ok: 4 };
+  function vbadge(a) {
+    const s = vstatus(a);
+    return `<div class="vbadge vb-${s.k}"><i class="ph-fill ${s.icon}"></i><b>${esc(s.label)}</b><span>${esc(s.detail)}</span></div>`;
+  }
+  const vchip = a => { const s = vstatus(a); return `<span class="vb vb-${s.k}" title="${esc(s.detail)}"><i class="ph-fill ${s.icon}"></i>${esc(s.label)}</span>`; };
+  function setVerified(id, on) {
+    const v = store.get("verified", {});
+    if (on) v[id] = { at: Date.now(), due: Date.now() + REVIEW_DAYS * DAY_MS }; else delete v[id];
+    store.set("verified", v);
+  }
+  function addView(id) { const v = store.get("views", {}); v[id] = (v[id] || 0) + 1; store.set("views", v); }
+  function addVote(id, dir) { const v = store.get("votes", {}); v[id] = v[id] || { up: 0, down: 0 }; v[id][dir]++; store.set("votes", v); }
+  const inbox = () => store.get("inbox", []);
+  function addInbox(item) {
+    const l = inbox(); l.unshift({ ...item, key: Date.now().toString(36), at: Date.now() });
+    store.set("inbox", l); updateCounts();
+  }
+  function updateCounts() {
+    const n = inbox().length;
+    $$("[data-review-count]").forEach(el => { el.textContent = n; el.hidden = !n; });
+  }
+  // Earlier prototype stored plain strings under "logged"; fold them into the inbox once.
+  (function migrate() {
+    const old = store.get("logged", []);
+    if (old.length) { const l = inbox(); old.forEach(q => l.push({ type: "question", text: q, key: q, at: Date.now() })); store.set("inbox", l); store.set("logged", []); }
+  })();
+
   // ── Store toggle ──
   let myStore = store.get("store", "plant");
   const storeName = s => (s === "plant" ? "Plant" : "Target");
@@ -91,9 +136,10 @@
   function articleHTML(a) {
     let h = `<article class="ticket" style="${catVar(a)}">
       <div class="ticket-top">${flag(a)}<span class="ticket-id">No. ${String(KB.indexOf(a) + 1).padStart(3, "0")}</span></div>
-      <h2>${esc(a.title)}</h2>`;
+      <h2>${esc(a.title)}</h2>${vbadge(a)}`;
     if (a.say) h += `<div class="section-label">Say this</div><blockquote class="say">${esc(a.say)}</blockquote>`;
-    if (a.do) h += `<div class="section-label">${a.say ? "Then" : "Do this"}</div><ol class="steps">${a.do.map(d => `<li>${esc(d)}</li>`).join("")}</ol>`;
+    if (a.do) h += `<div class="section-label">${a.say ? "Then" : "Do this"}${a.do.length > 1 ? `<span class="label-hint">Tap a step to check it off</span>` : ""}</div>
+      <ol class="steps">${a.do.map(d => `<li role="checkbox" aria-checked="false" tabindex="0">${esc(d)}</li>`).join("")}</ol>`;
     if (a.table) {
       const [k, v] = a.tableHead || ["", ""];
       h += `<table class="kv">${a.tableHead ? `<tr><th>${esc(k)}</th><th>${esc(v)}</th></tr>` : ""}${a.table.map(([x, y]) => `<tr><td>${esc(x)}</td><td>${esc(y)}</td></tr>`).join("")}</table>`;
@@ -158,30 +204,96 @@
         <div class="ticket-top"><span class="flag" style="color:var(--gap-ink)">No page for this yet</span></div>
         <h2>The book doesn't cover “${esc(q)}”</h2>
         <p class="muted">Tell the customer you'll find out, then check with the manager on duty. Log it so Enrique can add the answer.</p>
-        <button class="btn btn-primary" id="log-it"><i class="ph ph-paper-plane-tilt"></i>Add to Enrique's list</button>
+        <button class="btn btn-primary" id="log-it"><i class="ph ph-paper-plane-tilt"></i>Send to Enrique</button>
       </article>${relatedHTML("Closest pages", near)}`);
-      $("#log-it").addEventListener("click", e => {
-        const list = store.get("logged", []);
-        if (!list.includes(q)) list.push(q);
-        store.set("logged", list);
-        const b = e.currentTarget; b.disabled = true; b.innerHTML = '<i class="ph ph-check"></i>Logged';
-        toast("Added to Enrique's list");
+      const logged = inbox().some(i => i.type === "question" && i.text === q);
+      const b = $("#log-it");
+      if (logged) { b.disabled = true; b.innerHTML = '<i class="ph ph-check"></i>Already in Enrique\'s queue'; }
+      b.addEventListener("click", () => {
+        addInbox({ type: "question", text: q });
+        b.disabled = true; b.innerHTML = '<i class="ph ph-check"></i>In Enrique\'s review queue';
+        toast("Sent to Enrique");
       });
       return;
     }
     const top = res[0].a;
     const related = res.slice(1, 4).filter(r => r.s >= 2.5).map(r => r.a);
     pushRecent({ id: top.id, q });
-    setAnswer(articleHTML(top) + relatedHTML("Also in the book", related));
+    addView(top.id);
+    setAnswer(articleHTML(top) + feedbackHTML(top, q) + relatedHTML("Also in the book", related));
   }
   function renderArticle(id) {
     const a = byId[id];
     if (!a) return renderAskEmpty();
     askInput.value = "";
     pushRecent({ id });
+    addView(id);
     const sameCat = KB.filter(x => x.cat === a.cat && x !== a).slice(0, 4);
-    setAnswer(articleHTML(a) + relatedHTML(`More in ${CATS[a.cat].label}`, sameCat));
+    setAnswer(articleHTML(a) + feedbackHTML(a) + relatedHTML(`More in ${CATS[a.cat].label}`, sameCat));
   }
+
+  // ── "Was this right?" under every answer ──
+  function feedbackHTML(a, q = "") {
+    return `<div class="feedback" data-page="${a.id}" data-q="${esc(q)}">
+      <div class="fb-row">
+        <span class="fb-label">Was this right?</span>
+        <div class="fb-btns">
+          <button type="button" class="btn btn-sm" data-fb="up"><i class="ph ph-thumbs-up"></i>Yes</button>
+          <button type="button" class="btn btn-sm" data-fb="down"><i class="ph ph-thumbs-down"></i>Not quite</button>
+          <button type="button" class="btn btn-sm" data-fb="ask"><i class="ph ph-chat-circle-text"></i>Ask Enrique</button>
+        </div>
+      </div>
+      <form class="fb-form" hidden>
+        <label class="fb-q" for="fb-text"></label>
+        <textarea id="fb-text" rows="3" required></textarea>
+        <div class="fb-actions">
+          <button class="btn btn-primary btn-sm" type="submit"><i class="ph ph-paper-plane-tilt"></i>Send to Enrique</button>
+          <button class="btn btn-sm btn-ghost" type="button" data-fb="cancel">Cancel</button>
+        </div>
+      </form>
+    </div>`;
+  }
+  function fbDone(box, html) { box.innerHTML = `<div class="fb-done">${html}</div>`; }
+  answer.addEventListener("click", e => {
+    const b = e.target.closest("[data-fb]");
+    if (!b) return;
+    const box = b.closest(".feedback"), form = box.querySelector(".fb-form"), ta = form.querySelector("textarea");
+    const kind = b.dataset.fb;
+    if (kind === "up") { addVote(box.dataset.page, "up"); fbDone(box, '<i class="ph-fill ph-check-circle"></i>Thanks. Marked as helpful.'); return; }
+    if (kind === "cancel") { form.hidden = true; return; }
+    form.dataset.type = kind === "down" ? "flag" : "question";
+    form.querySelector(".fb-q").textContent = kind === "down" ? "What was wrong or missing?" : "What do you need to know?";
+    ta.value = kind === "ask" ? box.dataset.q : "";
+    ta.placeholder = kind === "down" ? "e.g. We stopped doing this in September" : "Type the customer's question";
+    form.hidden = false; ta.focus();
+  });
+  answer.addEventListener("submit", e => {
+    const form = e.target.closest(".fb-form"); if (!form) return;
+    e.preventDefault();
+    const box = form.closest(".feedback"), text = form.querySelector("textarea").value.trim();
+    if (!text) return;
+    const type = form.dataset.type;
+    if (type === "flag") addVote(box.dataset.page, "down");
+    addInbox({ type, text, page: box.dataset.page, q: box.dataset.q || "" });
+    fbDone(box, '<i class="ph-fill ph-paper-plane-tilt"></i>Sent to Enrique\'s review queue.');
+    toast("Sent to Enrique");
+  });
+
+  // ── Tappable steps: check off as you go, current step stays highlighted ──
+  function toggleStep(li) {
+    li.setAttribute("aria-checked", String(li.getAttribute("aria-checked") !== "true"));
+    const items = [...li.parentElement.children];
+    items.forEach(x => x.classList.remove("is-current"));
+    if (items.some(x => x.getAttribute("aria-checked") === "true")) {
+      const next = items.find(x => x.getAttribute("aria-checked") !== "true");
+      if (next) next.classList.add("is-current");
+    }
+  }
+  answer.addEventListener("click", e => { const li = e.target.closest(".steps li"); if (li) toggleStep(li); });
+  answer.addEventListener("keydown", e => {
+    const li = e.target.closest(".steps li");
+    if (li && (e.key === " " || e.key === "Enter")) { e.preventDefault(); toggleStep(li); }
+  });
 
   // ── Dates ──
   const DAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -422,7 +534,145 @@
   });
   document.addEventListener("click", e => { const b = e.target.closest(".say .copy"); if (b) copy(b.dataset.copy); });
 
-  // ── TRAINING ──
+  // ── TRAINING: trainees, daily sign-off, spaced check ──
+  // Missed questions come back tomorrow; each correct answer pushes the next check further out.
+  const INTERVALS = [1, 2, 4, 7, 14];
+  const DAYS = window.DAYS;
+  const startOfDay = (t = Date.now()) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const trainees = () => store.get("trainees", {});
+  const saveTrainees = t => store.set("trainees", t);
+  let currentTrainee = store.get("trainee", "");
+  let check = null; // { queue: [idx], i, revealed, got }
+
+  function tData() { return trainees()[currentTrainee]; }
+  function trainingDay(t) { for (const d of DAYS) if (!t.signed[d.day]) return d.day; return 6; }
+  function dueQueue(t) {
+    const upTo = Math.min(trainingDay(t), 5), eod = startOfDay() + DAY_MS - 1;
+    return TRAINING.map((c, i) => ({ c, i, s: t.cards[i] }))
+      .filter(x => x.c.day <= upTo && (!x.s || x.s.due <= eod))
+      .sort((a, b) => (a.s ? a.s.due : 0) - (b.s ? b.s.due : 0) || a.c.day - b.c.day)
+      .slice(0, 3).map(x => x.i);
+  }
+  function nextDue(t) {
+    const upTo = Math.min(trainingDay(t), 5);
+    const dues = TRAINING.map((c, i) => c.day <= upTo ? (t.cards[i] ? t.cards[i].due : 0) : Infinity);
+    return Math.min(...dues);
+  }
+
+  function renderTraineeBar() {
+    const all = Object.keys(trainees());
+    const bar = $("#trainee-bar");
+    if (!all.length || !tData()) {
+      bar.innerHTML = `<form class="trainee-new" id="trainee-new">
+        <label for="trainee-name"><b>Who's training?</b><span class="muted">Start a new CSR on Day 1.</span></label>
+        <div class="searchfield"><i class="ph ph-user-plus" aria-hidden="true"></i><input id="trainee-name" placeholder="Trainee's first name" required><button class="btn btn-primary" type="submit">Start</button></div>
+      </form>`;
+      return;
+    }
+    const t = tData(), signed = DAYS.filter(d => t.signed[d.day]).length;
+    bar.innerHTML = `<div class="trainee-row">
+      <div class="avatar" aria-hidden="true">${esc(currentTrainee.slice(0, 1).toUpperCase())}</div>
+      <div class="trainee-meta">
+        <label class="sr" for="trainee-pick">Trainee</label>
+        <select id="trainee-pick">${all.map(n => `<option value="${esc(n)}"${n === currentTrainee ? " selected" : ""}>${esc(n)}</option>`).join("")}</select>
+        <span class="muted">${signed === 5 ? "Training complete" : `Day ${trainingDay(t)} of 5`} · started ${fmtShort(t.start)}</span>
+      </div>
+      <div class="progress" aria-label="${signed} of 5 days signed off">${DAYS.map(d => `<span class="${t.signed[d.day] ? "on" : d.day === trainingDay(t) ? "now" : ""}"></span>`).join("")}</div>
+      <button class="btn btn-sm btn-ghost" type="button" id="trainee-add"><i class="ph ph-user-plus"></i>New trainee</button>
+    </div>`;
+  }
+
+  function renderCheck() {
+    const t = tData();
+    if (!check) check = { queue: dueQueue(t), i: 0, revealed: false, got: 0 };
+    const { queue, i } = check;
+    let body;
+    if (!queue.length) {
+      const nd = nextDue(t);
+      body = `<div class="check-empty"><i class="ph-fill ph-check-circle"></i><b>All caught up.</b><span>Next check ${isFinite(nd) && nd > Date.now() ? fmtLong(new Date(nd)) : "tomorrow"}.</span></div>`;
+    } else if (i >= queue.length) {
+      body = `<div class="check-empty"><i class="ph-fill ph-confetti"></i><b>${check.got} of ${queue.length} right.</b><span>${check.got === queue.length ? "Those come back in a few days to make them stick." : "The missed ones come back tomorrow."}</span></div>`;
+    } else {
+      const c = TRAINING[queue[i]];
+      body = `<div class="check-q"><span class="check-n">Question ${i + 1} of ${queue.length} · Day ${c.day}</span><p>${esc(c.q)}</p></div>
+        ${check.revealed
+          ? `<div class="check-a"><p>${esc(c.a)}</p><a href="#a/${c.ref}" class="src">Open the page</a></div>
+             <div class="decision"><button class="btn btn-primary" data-chk="got"><i class="ph ph-check"></i>Got it</button><button class="btn" data-chk="miss"><i class="ph ph-arrow-counter-clockwise"></i>Missed it</button></div>`
+          : `<div class="decision"><button class="btn btn-primary" data-chk="reveal">Show answer</button></div>`}`;
+    }
+    return `<div class="panel check-card"><h2 class="panel-title"><i class="ph ph-lightning"></i>Today's check</h2>${body}</div>`;
+  }
+
+  function renderDays() {
+    const t = tData(), now = trainingDay(t), trainer = store.get("trainerName", "");
+    return `<div class="panel"><h2 class="panel-title"><i class="ph ph-signature"></i>Five-day sign-off</h2><ol class="days">${DAYS.map(d => {
+      const s = t.signed[d.day];
+      const topics = d.topics.map(([label, id]) => id ? `<a class="topic" href="#a/${id}">${esc(label)}</a>` : `<span class="topic">${esc(label)}</span>`).join("");
+      let foot;
+      if (s) foot = `<div class="signed"><i class="ph-fill ph-seal-check"></i><span>Signed off ${fmtShort(s.at)} · Trainer: ${esc(s.trainer)} · Trainee: ${esc(currentTrainee)}</span><button class="link-btn" data-undo="${d.day}">Undo</button></div>`;
+      else if (d.day === now) foot = `<form class="signoff" data-day="${d.day}">
+          <label>Trainer<input name="trainer" value="${esc(trainer)}" placeholder="Trainer's name" required></label>
+          <label class="check"><input type="checkbox" name="ok" required> ${esc(currentTrainee)} passed the Day ${d.day} assessment</label>
+          <button class="btn btn-primary" type="submit"><i class="ph ph-signature"></i>Sign off Day ${d.day}</button>
+        </form>`;
+      else foot = `<div class="locked"><i class="ph ph-lock-simple"></i>Unlocks after Day ${d.day - 1} is signed off</div>`;
+      return `<li class="day ${s ? "is-done" : d.day === now ? "is-now" : ""}">
+        <div class="day-head"><span class="day-n">Day ${d.day}</span><b>${esc(d.theme)}</b></div>
+        <div class="topics">${topics}</div>${foot}</li>`;
+    }).join("")}</ol></div>`;
+  }
+
+  function renderTrainingBody() {
+    renderTraineeBar();
+    $("#training-body").innerHTML = tData() ? `<div class="split split-train">${renderCheck()}${renderDays()}</div>` : "";
+  }
+
+  $("#trainee-bar").addEventListener("submit", e => {
+    e.preventDefault();
+    const name = $("#trainee-name").value.trim().slice(0, 40); if (!name) return;
+    const all = trainees();
+    if (!all[name]) all[name] = { start: Date.now(), signed: {}, cards: {} };
+    saveTrainees(all); currentTrainee = name; store.set("trainee", name); check = null;
+    renderTrainingBody(); toast(`${name} is on Day 1`);
+  });
+  $("#trainee-bar").addEventListener("change", e => {
+    if (e.target.id !== "trainee-pick") return;
+    currentTrainee = e.target.value; store.set("trainee", currentTrainee); check = null; renderTrainingBody();
+  });
+  $("#trainee-bar").addEventListener("click", e => {
+    if (!e.target.closest("#trainee-add")) return;
+    currentTrainee = ""; store.set("trainee", ""); check = null; renderTrainingBody();
+    const inp = $("#trainee-name"); if (inp) inp.focus();
+  });
+  $("#training-body").addEventListener("click", e => {
+    const c = e.target.closest("[data-chk]");
+    if (c) {
+      const all = trainees(), t = all[currentTrainee], idx = check.queue[check.i];
+      if (c.dataset.chk === "reveal") check.revealed = true;
+      else {
+        const prev = t.cards[idx], got = c.dataset.chk === "got";
+        // First correct answer waits 2 days; each one after that waits longer. A miss comes back tomorrow.
+        const box = got ? Math.min((prev ? prev.box : 0) + 1, INTERVALS.length - 1) : 0;
+        t.cards[idx] = { box, due: startOfDay() + INTERVALS[box] * DAY_MS };
+        saveTrainees(all);
+        if (got) check.got++;
+        check.i++; check.revealed = false;
+      }
+      renderTrainingBody(); return;
+    }
+    const u = e.target.closest("[data-undo]");
+    if (u) { const all = trainees(); delete all[currentTrainee].signed[u.dataset.undo]; saveTrainees(all); check = null; renderTrainingBody(); }
+  });
+  $("#training-body").addEventListener("submit", e => {
+    const f = e.target.closest(".signoff"); if (!f) return;
+    e.preventDefault();
+    const trainer = f.trainer.value.trim().slice(0, 40); if (!trainer || !f.ok.checked) return;
+    const all = trainees();
+    all[currentTrainee].signed[f.dataset.day] = { trainer, at: Date.now() };
+    saveTrainees(all); store.set("trainerName", trainer);
+    renderTrainingBody(); toast(`Day ${f.dataset.day} signed off`);
+  });
+
   let day = 0;
   $("#day-seg").innerHTML = [0, 1, 2, 3, 4, 5].map(d => `<button role="radio" data-day="${d}" aria-checked="${d === 0}">${d ? "Day " + d : "All days"}</button>`).join("");
   $("#day-seg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; day = +b.dataset.day; renderTraining(); });
@@ -442,26 +692,75 @@
   });
 
   // ── BROWSE ──
-  $("#browse-count").textContent = `${KB.length} pages. A yellow dot means part of the answer is still missing.`;
-  $("#browse").innerHTML = Object.entries(CATS).map(([k, c]) => {
-    const items = KB.filter(a => a.cat === k);
-    return `<div class="bcat" style="--cat:${c.color}"><h2>${esc(c.label)}</h2><ul>${items.map(a =>
-      `<li><a href="#a/${a.id}"><span>${esc(a.title)}</span>${a.gap ? '<span class="dot-gap" title="Has an open question"></span>' : ""}</a></li>`).join("")}</ul></div>`;
-  }).join("");
+  $("#browse-count").textContent = `${KB.length} pages. A green seal means Enrique verified it. A yellow dot means part of the answer is still missing.`;
+  function renderBrowse() {
+    $("#browse").innerHTML = Object.entries(CATS).map(([k, c]) => {
+      const items = KB.filter(a => a.cat === k);
+      return `<div class="bcat" style="--cat:${c.color}"><h2>${esc(c.label)}</h2><ul>${items.map(a => {
+        const s = vstatus(a);
+        const mark = s.k === "ok" ? `<i class="ph-fill ph-seal-check bmark-ok" title="${esc(s.detail)}"></i>` : a.gap ? '<span class="dot-gap" title="Has an open question"></span>' : "";
+        return `<li><a href="#a/${a.id}"><span>${esc(a.title)}</span>${mark}</a></li>`;
+      }).join("")}</ul></div>`;
+    }).join("");
+  }
+  renderBrowse();
 
   // ── GAPS ──
   $("#gaps").innerHTML = KB.filter(a => a.gap).map(a =>
     `<li class="gap-item"><h3>${esc(a.title)}</h3><p>${esc(a.gap)}</p><a href="#a/${a.id}">Open the page →</a></li>`).join("");
-  function renderLogged() {
-    const list = store.get("logged", []);
-    $("#logged-wrap").hidden = !list.length;
-    $("#logged").innerHTML = list.map(q => `<li>${esc(q)}</li>`).join("");
+
+  // ── REVIEW (owner) ──
+  let reviewFilter = "attn";
+  function renderReview() {
+    const views = store.get("views", {}), votes = store.get("votes", {}), items = inbox();
+    const sts = KB.map(a => ({ a, s: vstatus(a), v: views[a.id] || 0, down: (votes[a.id] || {}).down || 0, up: (votes[a.id] || {}).up || 0 }));
+    const verified = sts.filter(x => x.s.k === "ok").length;
+    const flags = items.filter(i => i.type === "flag").length, qs = items.length - flags;
+    $("#review-stats").innerHTML = [
+      ["ph-seal-check", `${verified}<small>/${KB.length}</small>`, "pages verified"],
+      ["ph-clock-countdown", sts.filter(x => x.s.k === "due").length, "due for review"],
+      ["ph-chat-circle-text", qs, "questions from the counter"],
+      ["ph-thumbs-down", flags, "answers flagged"]
+    ].map(([i, n, l]) => `<div class="stat"><i class="ph ${i}"></i><b>${n}</b><span>${l}</span></div>`).join("");
+
+    $("#inbox").innerHTML = items.length ? items.map(it => {
+      const page = it.page && byId[it.page];
+      const meta = [page ? `On “${page.title}”` : "", it.q && it.type === "flag" ? `Searched “${it.q}”` : "", ago(it.at)].filter(Boolean).join(" · ");
+      return `<li class="inbox-item">
+        <i class="ph ${it.type === "flag" ? "ph-flag" : "ph-chat-circle-text"} ib-${it.type}"></i>
+        <span class="row-text"><span class="ib-kind">${it.type === "flag" ? "Flagged answer" : "Question"}</span>${esc(it.text)}<small>${esc(meta)}</small></span>
+        <span class="ib-actions">${page ? `<a class="btn btn-sm" href="#a/${page.id}">Open</a>` : ""}<button class="btn btn-sm" data-handled="${esc(it.key)}"><i class="ph ph-check"></i>Handled</button></span>
+      </li>`;
+    }).join("") : `<li class="inbox-empty"><i class="ph ph-tray"></i><span class="row-text">Nothing waiting.<small>“Ask Enrique” and “Not quite” from any answer land here.</small></span></li>`;
+
+    $$("#review-seg button").forEach(b => b.setAttribute("aria-checked", String(b.dataset.f === reviewFilter)));
+    const rows = sts.filter(x => reviewFilter === "all" || x.s.k !== "ok")
+      .sort((x, y) => STATUS_ORDER[x.s.k] - STATUS_ORDER[y.s.k] || y.v - x.v || y.down - x.down || x.a.title.localeCompare(y.a.title));
+    $("#review-list").innerHTML = rows.length ? rows.map(({ a, s, v, down, up }) => `
+      <div class="rv-row">
+        <div class="rv-main"><a href="#a/${a.id}">${esc(a.title)}</a>
+          <div class="rv-meta">${vchip(a)}<span><i class="ph ph-eye"></i>${v}</span>${up ? `<span><i class="ph ph-thumbs-up"></i>${up}</span>` : ""}${down ? `<span class="rv-down"><i class="ph ph-thumbs-down"></i>${down}</span>` : ""}</div></div>
+        ${s.k === "ok"
+          ? `<button class="btn btn-sm btn-ghost" data-verify="${a.id}" data-on="0">Unverify</button>`
+          : `<button class="btn btn-sm btn-primary" data-verify="${a.id}" data-on="1"><i class="ph ph-seal-check"></i>${s.k === "due" ? "Re-verify" : "Verify"}</button>`}
+      </div>`).join("") : `<p class="muted">Every page is verified. Nice.</p>`;
   }
+  $("#review-seg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; reviewFilter = b.dataset.f; renderReview(); });
+  $("#review-list").addEventListener("click", e => {
+    const b = e.target.closest("[data-verify]"); if (!b) return;
+    const on = b.dataset.on === "1"; setVerified(b.dataset.verify, on);
+    toast(on ? `Verified · next review ${fmtShort(Date.now() + REVIEW_DAYS * DAY_MS)}` : "Marked unverified");
+    renderReview(); renderBrowse();
+  });
+  $("#inbox").addEventListener("click", e => {
+    const b = e.target.closest("[data-handled]"); if (!b) return;
+    store.set("inbox", inbox().filter(i => i.key !== b.dataset.handled)); updateCounts(); renderReview();
+  });
 
   // ── Router ──
   const TITLES = { ask: "Ask", ready: "Ready by", routes: "Route days", outage: "Something broke", scripts: "What to say",
-    training: "Training", browse: "Browse the book", gaps: "Gaps for Enrique", plan: "The plan" };
-  const MORE = ["scripts", "training", "browse", "gaps", "plan"];
+    training: "Training", browse: "Browse the book", gaps: "Gaps for Enrique", plan: "The plan", review: "Review" };
+  const MORE = ["scripts", "training", "browse", "gaps", "plan", "review"];
 
   function go(hash) { if (location.hash === hash) route_(); else location.hash = hash; }
   function setIcon(el, on) {
@@ -491,8 +790,9 @@
       case "routes": show("routes"); renderWeek(); break;
       case "outage": show("outage"); renderOutage(arg); break;
       case "scripts": case "browse": case "plan": show(view); break;
-      case "training": show("training"); renderTraining(); break;
-      case "gaps": show("gaps"); renderLogged(); break;
+      case "training": show("training"); check = null; renderTrainingBody(); renderTraining(); break;
+      case "gaps": show("gaps"); break;
+      case "review": show("review"); renderReview(); break;
       case "ask": show("ask", arg ? "Answer" : null); arg ? renderAsk(arg) : renderAskEmpty(); break;
       default: show("ask"); renderAskEmpty();
     }
@@ -539,6 +839,7 @@
   }
 
   window.addEventListener("hashchange", route_);
+  updateCounts();
   setStore(myStore);
   route_();
 })();

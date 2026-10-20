@@ -19,7 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/regular/style.css">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/fill/style.css">
-  <link rel="stylesheet" href="assets/styles.css?v=6">
+  <link rel="stylesheet" href="assets/styles.css?v=10">
 </head>
 <body>
 <div class="app">
@@ -41,6 +41,7 @@
       <a href="#training" data-tab="training"><i class="ph ph-graduation-cap"></i>Training</a>
       <a href="#browse" data-tab="browse"><i class="ph ph-books"></i>Browse the book</a>
       <div class="nav-group">For Enrique</div>
+      <a href="#review" data-tab="review"><i class="ph ph-seal-check"></i>Review<span class="badge badge-green" data-review-count hidden></span></a>
       <a href="#gaps" data-tab="gaps"><i class="ph ph-note-pencil"></i>Gaps<span class="badge" data-gap-count></span></a>
       <a href="#plan" data-tab="plan"><i class="ph ph-map-trifold"></i>The plan</a>
     </nav>
@@ -171,9 +172,33 @@
 
       <!-- TRAINING -->
       <section data-view="training" hidden>
-        <p class="view-sub">The five-day assessments, answered from the book. Tap a card to flip it.</p>
-        <div class="seg seg-scroll" role="radiogroup" aria-label="Training day" id="day-seg"></div>
-        <div class="cards" id="cards"></div>
+        <p class="view-sub">The five-day manual, on screen. A daily sign-off replaces the paper sheet, and a 3-question check brings back whatever the trainee missed.</p>
+        <div class="panel trainee-bar" id="trainee-bar"></div>
+        <div id="training-body"></div>
+        <div class="list-block">
+          <div class="list-head"><span>Practice any day</span></div>
+          <div class="seg seg-scroll" role="radiogroup" aria-label="Training day" id="day-seg"></div>
+          <div class="cards" id="cards"></div>
+        </div>
+      </section>
+
+      <!-- REVIEW (owner) -->
+      <section data-view="review" hidden>
+        <p class="view-sub">Enrique's weekly ten minutes: questions from the counter, answers someone flagged, and pages to verify. Most-viewed pages rise to the top.</p>
+        <div class="stats" id="review-stats"></div>
+        <div class="list-block">
+          <div class="list-head"><span>From the counter</span></div>
+          <ul class="rows inbox" id="inbox"></ul>
+        </div>
+        <div class="list-block">
+          <div class="list-head"><span>Pages</span></div>
+          <div class="seg" role="radiogroup" aria-label="Filter pages" id="review-seg">
+            <button role="radio" data-f="attn" aria-checked="true">Needs attention</button>
+            <button role="radio" data-f="all" aria-checked="false">All pages</button>
+          </div>
+          <div class="review-list" id="review-list"></div>
+        </div>
+        <p class="proto-fine">Prototype: views, flags and verifications are saved on this device only. In the live version they come from every counter, and Enrique answers questions through Claude, which turns each answer into a verified page.</p>
       </section>
 
       <!-- BROWSE -->
@@ -186,11 +211,7 @@
       <section data-view="gaps" hidden>
         <p class="view-sub">Questions the manual raises but doesn't answer, found while building this prototype. Each one is a sentence or two from Enrique.</p>
         <ol class="gaps" id="gaps"></ol>
-        <div class="panel" id="logged-wrap" hidden>
-          <h2 class="panel-title">Logged from the counter</h2>
-          <p class="muted">Questions a CSR asked that the book couldn't answer. In the live version these go straight to Enrique's list.</p>
-          <ul class="logged" id="logged"></ul>
-        </div>
+        <p class="muted">Questions asked at the counter that the book couldn't answer go to <a href="#review">Review</a>.</p>
       </section>
 
       <!-- PLAN -->
@@ -203,6 +224,7 @@
             <p>Your manual and handbook, reorganized around what customers actually ask. Promise times and route days calculated instead of remembered. Outage playbooks a CSR can follow under pressure.</p>
             <ul>
               <li>Installs like an app on the counter computer, a tablet, or a phone</li>
+              <li>Every page shows whether you've verified it, and when it's due for another look</li>
               <li>Separate notes for each store, ready for a third and fourth</li>
               <li>Hosted on its own, outside corporate's website</li>
             </ul>
@@ -247,6 +269,7 @@
       <li><a href="#scripts" data-tab="scripts"><i class="ph ph-chat-text"></i><span>What to say</span><i class="ph ph-caret-right chev"></i></a></li>
       <li><a href="#training" data-tab="training"><i class="ph ph-graduation-cap"></i><span>Training</span><i class="ph ph-caret-right chev"></i></a></li>
       <li><a href="#browse" data-tab="browse"><i class="ph ph-books"></i><span>Browse the book</span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#review" data-tab="review"><i class="ph ph-seal-check"></i><span>Review (Enrique)</span><span class="badge badge-green" data-review-count hidden></span><i class="ph ph-caret-right chev"></i></a></li>
       <li><a href="#gaps" data-tab="gaps"><i class="ph ph-note-pencil"></i><span>Gaps for Enrique</span><span class="badge" data-gap-count></span><i class="ph ph-caret-right chev"></i></a></li>
       <li><a href="#plan" data-tab="plan"><i class="ph ph-map-trifold"></i><span>The plan</span><i class="ph ph-caret-right chev"></i></a></li>
     </ul>
@@ -266,7 +289,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 
-<script src="assets/knowledge.js?v=6"></script>
-<script src="assets/app.js?v=6"></script>
+<script src="assets/knowledge.js?v=10"></script>
+<script src="assets/app.js?v=10"></script>
 </body>
 </html>

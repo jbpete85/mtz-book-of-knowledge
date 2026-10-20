@@ -1,8 +1,8 @@
 // Book of Knowledge service worker: app shell works offline (useful when the store internet is down).
-const VERSION = "bok-v6";
+const VERSION = "bok-v10";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest",
-  "./assets/styles.css?v=6", "./assets/knowledge.js?v=6", "./assets/app.js?v=6",
+  "./assets/styles.css?v=10", "./assets/knowledge.js?v=10", "./assets/app.js?v=10",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"
 ];
 
