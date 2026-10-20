@@ -1,17 +1,18 @@
 /* Book of Knowledge — app shell.
-   Workplace-calm: neutral surfaces, one sans family, Martinizing green as the only accent. */
+   Martinizing Cleaners brand: blue #007AC3, navy #0A1538, lime #A0D57A, Montserrat headings.
+   Body text stays Atkinson Hyperlegible Next for legibility at the counter. */
 
 :root {
-  --paper: #F5F6F7;
+  --paper: #F3F4F6;
   --card: #FEFEFE;
-  --ink: #1D232B;
-  --ink-2: #4A5361;
-  --ink-3: #737D8C;
-  --line: #E1E4E8;
-  --line-2: #EDEFF2;
-  --green: #127A47;
-  --green-ink: #0E6339;
-  --green-wash: #EEF5F1;
+  --ink: #0A1538;
+  --ink-2: #3E414D;
+  --ink-3: #6D717F;
+  --line: #E2E4E9;
+  --line-2: #EEF0F3;
+  --green: #007AC3;
+  --green-ink: #005F98;
+  --green-wash: #E8F3FA;
   --red: #B42318;
   --red-wash: #FDF1F0;
   --orange: #A15C07;
@@ -20,35 +21,40 @@
   --gap: #F0C64A;
   --gap-ink: #6B4A00;
   --gap-wash: #FFF9E8;
-  --bar: rgba(245, 246, 247, .9);
+  --bar: rgba(243, 244, 246, .92);
   --shadow: 0 1px 2px rgba(16,24,40,.05);
   --shadow-up: 0 -1px 0 rgba(16,24,40,.05), 0 -8px 24px -16px rgba(16,24,40,.25);
   --radius: 10px;
   --side: 252px;
   --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-  --display: var(--body);
+  --display: "Montserrat", system-ui, sans-serif;
   --body: "Atkinson Hyperlegible Next", system-ui, sans-serif;
-  --on-accent: #FFFDF8;
+  --on-accent: #FEFEFE;
+  --lime: #A0D57A;
+  --lime-hover: #8EC865;
+  --lime-wash: #EEF7E8;
+  --on-lime: #0A1538;
+  --verified: #23703A;
   --on-gap: #3A2F00;
   --scrim: rgba(10, 14, 20, .38);
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #14171B; --card: #1B1F25; --ink: #E7E9EC; --ink-2: #B3BAC4; --ink-3: #8B939F;
-    --line: #2B3139; --line-2: #22272E; --green: #4DBA85; --green-ink: #86D4AE; --green-wash: #1A2A22;
+    --paper: #0F1524; --card: #161D2E; --ink: #E8ECF4; --ink-2: #B7BDCB; --ink-3: #8C93A3;
+    --line: #273049; --line-2: #1D2538; --green: #4FB3EE; --green-ink: #8ACBF3; --green-wash: #12283A; --verified: #6CC17A;
     --red: #F07A72; --red-wash: #33201F; --orange: #E3A55B; --blue: #86A9E0; --plum: #B9A3D6;
-    --gap: #C9A440; --gap-ink: #F1DE9E; --gap-wash: #2A2517; --on-accent: #0B1F12; --bar: rgba(20, 23, 27, .9);
+    --gap: #C9A440; --gap-ink: #F1DE9E; --gap-wash: #2A2517; --on-accent: #0A1538; --bar: rgba(15, 21, 36, .92);
     --shadow: 0 1px 2px rgba(0,0,0,.35);
     --shadow-up: 0 -1px 0 rgba(255,255,255,.04), 0 -10px 30px -18px rgba(0,0,0,.8);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #14171B; --card: #1B1F25; --ink: #E7E9EC; --ink-2: #B3BAC4; --ink-3: #8B939F;
-    --line: #2B3139; --line-2: #22272E; --green: #4DBA85; --green-ink: #86D4AE; --green-wash: #1A2A22;
+  --paper: #0F1524; --card: #161D2E; --ink: #E8ECF4; --ink-2: #B7BDCB; --ink-3: #8C93A3;
+    --line: #273049; --line-2: #1D2538; --green: #4FB3EE; --green-ink: #8ACBF3; --green-wash: #12283A; --verified: #6CC17A;
     --red: #F07A72; --red-wash: #33201F; --orange: #E3A55B; --blue: #86A9E0; --plum: #B9A3D6;
-    --gap: #C9A440; --gap-ink: #F1DE9E; --gap-wash: #2A2517; --on-accent: #0B1F12; --bar: rgba(20, 23, 27, .9);
+    --gap: #C9A440; --gap-ink: #F1DE9E; --gap-wash: #2A2517; --on-accent: #0A1538; --bar: rgba(15, 21, 36, .92);
     --shadow: 0 1px 2px rgba(0,0,0,.35);
   --shadow-up: 0 -1px 0 rgba(255,255,255,.04), 0 -10px 30px -18px rgba(0,0,0,.8);
   color-scheme: dark;
@@ -719,3 +725,30 @@ a.topic:hover { border-color: var(--green); color: var(--green-ink); }
 .tabbar [aria-current="page"] i { color: var(--green); }
 .content > section:not([hidden]) { animation-duration: .12s; }
 .tool { font-weight: 600; }
+
+
+/* ═══════════ Martinizing brand pass ═══════════ */
+.brand { flex-direction: column; align-items: flex-start; gap: 8px; padding: 4px 6px 16px; }
+.brand-logo { width: 176px; height: auto; display: block; }
+.brand-text b { font-family: var(--display); font-size: 14px; font-weight: 700; color: var(--ink); }
+.topbar-logo { width: auto; height: 22px; border-radius: 0; }
+.topbar-title, .searchcard-label, .ticket h2, .panel-title, .plan-step h2, .bcat h2, .claim-day, .stat b, .wday .d,
+.nav-group, .tool, .btn { font-family: var(--display); }
+.btn, .tool { font-weight: 600; }
+.btn-primary { background: var(--lime); border-color: var(--lime); color: var(--on-lime); }
+.btn-primary:hover:not(:disabled) { background: var(--lime-hover); border-color: var(--lime-hover); }
+.side-nav a[aria-current="page"] { background: var(--green-wash); color: var(--green-ink); }
+.side-nav a[aria-current="page"] i, .tabbar [aria-current="page"] i, .tabbar [aria-current="page"] { color: var(--green); }
+.tool i { color: var(--green); }
+.badge-green { background: var(--green); color: var(--on-accent); }
+/* Verified keeps its own green so it still reads as "approved" next to brand blue */
+.vb-ok i, .vb-ok b, .bmark-ok, .signed, .signed i { color: var(--verified); }
+.vb.vb-ok { border-color: var(--verified); background: var(--lime-wash); color: var(--verified); }
+.steps li[aria-checked="true"]::before { background-color: var(--green); }
+.searchfield:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-wash); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brand-logo, :root:not([data-theme="light"]) .topbar-logo { background: #FEFEFE; padding: 6px 8px; border-radius: 6px; box-sizing: content-box; }
+  :root:not([data-theme="light"]) .vb.vb-ok { background: transparent; }
+}
+:root[data-theme="dark"] .brand-logo, :root[data-theme="dark"] .topbar-logo { background: #FEFEFE; padding: 6px 8px; border-radius: 6px; box-sizing: content-box; }
+@media (max-width: 760px) { .topbar-logo { height: 20px; } }

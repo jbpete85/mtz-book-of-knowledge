@@ -1,9 +1,9 @@
 // Book of Knowledge service worker: app shell works offline (useful when the store internet is down).
-const VERSION = "bok-v14";
+const VERSION = "bok-v15";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest",
-  "./assets/styles.css?v=14", "./assets/knowledge.js?v=14", "./assets/app.js?v=14",
-  "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png"
+  "./assets/styles.css?v=15", "./assets/knowledge.js?v=15", "./assets/app.js?v=15",
+  "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png", "./assets/brand/martinizing-logo.svg"
 ];
 
 self.addEventListener("install", e => {

@@ -1,12 +1,12 @@
 {
-  "name": "Book of Knowledge · Martinizing",
+  "name": "Book of Knowledge · Martinizing Cleaners",
   "short_name": "Book",
   "description": "Counter assistant for Martinizing Cleaners of Flower Mound CSRs.",
   "start_url": "./#ask",
   "scope": "./",
   "display": "standalone",
   "background_color": "#F4F1E9",
-  "theme_color": "#0A7A3F",
+  "theme_color": "#007AC3",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },

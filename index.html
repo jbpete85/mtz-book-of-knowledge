@@ -16,19 +16,19 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400..800&family=Montserrat:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/regular/style.css">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/fill/style.css">
-  <link rel="stylesheet" href="assets/styles.css?v=14">
+  <link rel="stylesheet" href="assets/styles.css?v=15">
 </head>
 <body>
 <div class="app">
 
   <!-- Sidebar (tablet + desktop) -->
   <aside class="sidebar" aria-label="App navigation">
-    <a class="brand" href="#ask">
-      <img src="icons/icon-192.png" alt="" width="36" height="36">
-      <span class="brand-text"><b>Book of Knowledge</b><small>Martinizing · Flower Mound</small></span>
+    <a class="brand" href="#ask" aria-label="Book of Knowledge home">
+      <img class="brand-logo" src="assets/brand/martinizing-logo.svg" alt="Martinizing Cleaners" width="180" height="40">
+      <span class="brand-text"><b>Book of Knowledge</b><small>Flower Mound · CSR reference</small></span>
     </a>
     <nav class="side-nav">
       <a href="#ask" data-tab="ask"><i class="ph ph-house"></i>Home</a>
@@ -57,7 +57,7 @@
   <div class="main-col">
     <!-- Top bar -->
     <header class="topbar">
-      <img class="topbar-icon" src="icons/icon-192.png" alt="" width="28" height="28">
+      <img class="topbar-icon topbar-logo" src="assets/brand/martinizing-logo.svg" alt="Martinizing Cleaners" width="96" height="21">
       <h1 class="topbar-title" id="view-title">Ask</h1>
       <form class="topbar-search ta" id="top-search" role="search" autocomplete="off">
         <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
@@ -296,7 +296,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 
-<script src="assets/knowledge.js?v=14"></script>
-<script src="assets/app.js?v=14"></script>
+<script src="assets/knowledge.js?v=15"></script>
+<script src="assets/app.js?v=15"></script>
 </body>
 </html>
