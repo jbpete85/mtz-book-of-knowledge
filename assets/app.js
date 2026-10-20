@@ -133,7 +133,7 @@
   function catVar(a) { return `--cat:${CATS[a.cat].color}`; }
   function flag(a) { return `<span class="flag">${esc(CATS[a.cat].label)}</span>`; }
 
-  function articleHTML(a) {
+  function articleHTML(a, fb = "") {
     let h = `<article class="ticket" style="${catVar(a)}">
       <div class="ticket-top">${flag(a)}<span class="ticket-id">No. ${String(KB.indexOf(a) + 1).padStart(3, "0")}</span></div>
       <h2>${esc(a.title)}</h2>${vbadge(a)}`;
@@ -150,7 +150,7 @@
     }
     if (a.gap) h += `<div class="gapnote"><b>Not in the book yet · for Enrique</b>${esc(a.gap)}</div>`;
     const toolLink = { ready: ["#ready", "Open the ready-by calculator"], routes: ["#routes", "Open the route days"], outage: ["#outage/" + a.id, "Walk through it step by step"] }[a.tool];
-    h += `<div class="ticket-foot"><span class="src">Source · ${esc(a.src)}</span>${toolLink ? `<a class="btn btn-sm" href="${toolLink[0]}">${toolLink[1]}<i class="ph ph-arrow-right"></i></a>` : ""}</div></article>`;
+    h += `<div class="ticket-foot"><div class="tf-row"><span class="src">Source · ${esc(a.src)}</span>${toolLink ? `<a class="btn btn-sm" href="${toolLink[0]}">${toolLink[1]}<i class="ph ph-arrow-right"></i></a>` : ""}</div>${fb}</div></article>`;
     return h;
   }
 
@@ -162,6 +162,66 @@
     e.preventDefault(); const inp = topSearch.querySelector("input"); const q = inp.value.trim();
     if (q) { inp.value = ""; inp.blur(); go("#ask/" + encodeURIComponent(q)); }
   });
+
+  // ── Typeahead: matching pages (and tools) appear as you type ──
+  const TOOLS = [
+    { href: "#ready", label: "Ready-by calculator", icon: "ph-clock", kw: ["ready", "promise", "when", "done", "turnaround"] },
+    { href: "#routes", label: "Route days", icon: "ph-truck", kw: ["route", "delivery", "deliver", "driver"] },
+    { href: "#outage", label: "Something broke", icon: "ph-warning-octagon", kw: ["down", "broke", "internet", "wifi", "spot", "card", "machine", "outage", "offline", "frozen"] },
+    { href: "#scripts", label: "What to say", icon: "ph-chat-text", kw: ["say", "script", "words", "greeting"] },
+    { href: "#training", label: "Training", icon: "ph-graduation-cap", kw: ["train", "quiz", "trainee"] }
+  ];
+  function taPages(q) {
+    const scores = new Map(search(q).map(r => [r.a.id, r.s]));
+    // The word still being typed matches the start of indexed words ("leath" → leather)
+    const last = stem(norm(q).split(" ").pop() || "");
+    if (last.length >= 3) index.forEach(({ a, w }) => {
+      for (const [t, wt] of w) if (t !== last && t.startsWith(last)) { scores.set(a.id, (scores.get(a.id) || 0) + Math.min(wt, 4)); break; }
+    });
+    return [...scores].filter(([, s]) => s >= 2).sort((x, y) => y[1] - x[1]).slice(0, 5).map(([id]) => byId[id]);
+  }
+  function taItems(q) {
+    const words = norm(q).split(" ").filter(w => w.length >= 3);
+    const tools = TOOLS.filter(t => t.kw.some(k => words.some(w => k.startsWith(w) || w.startsWith(k)))).slice(0, 2);
+    return [
+      ...taPages(q).map(a => ({ href: `#a/${a.id}`, label: a.title, sub: CATS[a.cat].label, icon: "ph-file-text" })),
+      ...tools.map(t => ({ href: t.href, label: t.label, sub: "Tool", icon: t.icon }))
+    ];
+  }
+  function attachTypeahead(input, list) {
+    let items = [], active = -1;
+    const setActive = i => {
+      active = i;
+      [...list.children].forEach((li, n) => li.setAttribute("aria-selected", String(n === i)));
+      if (i >= 0) input.setAttribute("aria-activedescendant", `${list.id}-${i}`); else input.removeAttribute("aria-activedescendant");
+    };
+    const close = () => { list.hidden = true; input.setAttribute("aria-expanded", "false"); setActive(-1); };
+    const pick = i => { const it = items[i]; if (!it) return; close(); if (input !== askInput) input.value = ""; input.blur(); go(it.href); };
+    function render() {
+      const q = input.value.trim();
+      if (q.length < 2) { close(); return; }
+      items = taItems(q);
+      list.innerHTML = items.length
+        ? items.map((it, i) => `<li role="option" id="${list.id}-${i}" aria-selected="false" data-i="${i}"><i class="ph ${it.icon}" aria-hidden="true"></i><span class="ta-text">${esc(it.label)}<small>${esc(it.sub)}</small></span></li>`).join("")
+        : `<li class="ta-empty">No page matches yet. Press Enter to see options.</li>`;
+      list.hidden = false; input.setAttribute("aria-expanded", "true"); setActive(-1);
+    }
+    input.addEventListener("input", render);
+    input.addEventListener("focus", () => { if (input.value.trim().length >= 2) render(); });
+    input.addEventListener("blur", () => setTimeout(close, 120));
+    input.addEventListener("keydown", e => {
+      if (list.hidden || !items.length) { if (e.key === "Escape") close(); return; }
+      if (e.key === "ArrowDown") { e.preventDefault(); setActive((active + 1) % items.length); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); setActive(active <= 0 ? items.length - 1 : active - 1); }
+      else if (e.key === "Enter" && active >= 0) { e.preventDefault(); pick(active); }
+      else if (e.key === "Escape") close();
+    });
+    list.addEventListener("mousedown", e => e.preventDefault());
+    list.addEventListener("click", e => { const li = e.target.closest("[data-i]"); if (li) pick(+li.dataset.i); });
+    return close;
+  }
+  const closeAskTA = attachTypeahead(askInput, $("#ask-ta"));
+  const closeTopTA = attachTypeahead(topSearch.querySelector("input"), $("#top-ta"));
 
   const gapCount = KB.filter(a => a.gap).length;
   $$("[data-gap-count]").forEach(el => el.textContent = gapCount);
@@ -187,9 +247,12 @@
   $("#clear-recent").addEventListener("click", () => { store.set("recent", []); renderRecent(); });
 
   const backRow = `<div class="back-row"><a href="#ask"><i class="ph ph-arrow-left"></i>Home</a></div>`;
-  function setAnswer(html) { home.hidden = true; answer.innerHTML = backRow + html; }
+  const searchcard = $("#ask-form");
+  // On an answer, the search shrinks to a slim bar so the answer starts near the top
+  function setAnswer(html) { home.hidden = true; searchcard.classList.add("is-compact"); answer.innerHTML = backRow + html; }
 
   function renderAskEmpty() {
+    searchcard.classList.remove("is-compact");
     askInput.value = "";
     answer.innerHTML = "";
     home.hidden = false;
@@ -201,7 +264,7 @@
     if (!res.length || res[0].s < 3) {
       const near = res.slice(0, 3).map(r => r.a);
       setAnswer(`<article class="ticket nomatch" style="--cat:var(--gap)">
-        <div class="ticket-top"><span class="flag" style="color:var(--gap-ink)">No page for this yet</span></div>
+        <div class="ticket-top"><span class="flag flag-gap">No page for this yet</span></div>
         <h2>The book doesn't cover “${esc(q)}”</h2>
         <p class="muted">Tell the customer you'll find out, then check with the manager on duty. Log it so Enrique can add the answer.</p>
         <button class="btn btn-primary" id="log-it"><i class="ph ph-paper-plane-tilt"></i>Send to Enrique</button>
@@ -212,7 +275,6 @@
       b.addEventListener("click", () => {
         addInbox({ type: "question", text: q });
         b.disabled = true; b.innerHTML = '<i class="ph ph-check"></i>In Enrique\'s review queue';
-        toast("Sent to Enrique");
       });
       return;
     }
@@ -220,7 +282,7 @@
     const related = res.slice(1, 4).filter(r => r.s >= 2.5).map(r => r.a);
     pushRecent({ id: top.id, q });
     addView(top.id);
-    setAnswer(articleHTML(top) + feedbackHTML(top, q) + relatedHTML("Also in the book", related));
+    setAnswer(articleHTML(top, feedbackHTML(top, q)) + relatedHTML("Also in the book", related));
   }
   function renderArticle(id) {
     const a = byId[id];
@@ -229,7 +291,7 @@
     pushRecent({ id });
     addView(id);
     const sameCat = KB.filter(x => x.cat === a.cat && x !== a).slice(0, 4);
-    setAnswer(articleHTML(a) + feedbackHTML(a) + relatedHTML(`More in ${CATS[a.cat].label}`, sameCat));
+    setAnswer(articleHTML(a, feedbackHTML(a)) + relatedHTML(`More in ${CATS[a.cat].label}`, sameCat));
   }
 
   // ── "Was this right?" under every answer ──
@@ -276,7 +338,6 @@
     if (type === "flag") addVote(box.dataset.page, "down");
     addInbox({ type, text, page: box.dataset.page, q: box.dataset.q || "" });
     fbDone(box, '<i class="ph-fill ph-paper-plane-tilt"></i>Sent to Enrique\'s review queue.');
-    toast("Sent to Enrique");
   });
 
   // ── Tappable steps: check off as you go, current step stays highlighted ──
@@ -391,7 +452,7 @@
         notes: ["Add “Fancy” for beading, “Lace” for lace, “Storage Chest” for preservation."], foot: `<a href="#a/wedding">Full wedding dress steps →</a>` });
     } else {
       out.innerHTML = claim({ head: "Household items", day: "Check sheet", say: "“Household items take a little longer. Let me confirm the exact date for you.”",
-        notes: [`<span style="background:var(--gap-wash);padding:0 4px">Not in the book yet:</span> the manual points to a “Turnaround Time Sheet” that isn't in the binder.`],
+        notes: [`<span class="hl-gap">Not in the book yet:</span> the manual points to a “Turnaround Time Sheet” that isn't in the binder.`],
         foot: `<a href="#a/household">See the open question →</a>` });
     }
   }
@@ -633,7 +694,7 @@
     const all = trainees();
     if (!all[name]) all[name] = { start: Date.now(), signed: {}, cards: {} };
     saveTrainees(all); currentTrainee = name; store.set("trainee", name); check = null;
-    renderTrainingBody(); toast(`${name} is on Day 1`);
+    renderTrainingBody();
   });
   $("#trainee-bar").addEventListener("change", e => {
     if (e.target.id !== "trainee-pick") return;
@@ -670,7 +731,7 @@
     const all = trainees();
     all[currentTrainee].signed[f.dataset.day] = { trainer, at: Date.now() };
     saveTrainees(all); store.set("trainerName", trainer);
-    renderTrainingBody(); toast(`Day ${f.dataset.day} signed off`);
+    renderTrainingBody();
   });
 
   let day = 0;
@@ -682,7 +743,7 @@
       <button class="fcard" aria-label="Flip card">
         <div class="fcard-inner">
           <div class="fcard-face"><span class="fcard-day">Day ${t.day}</span><span class="fcard-q">${esc(t.q)}</span><span class="fcard-cta">Tap to flip</span></div>
-          <div class="fcard-face fcard-back"><span class="fcard-day">Answer</span><span class="fcard-a">${esc(t.a)}</span><span data-href="#a/${t.ref}" class="src" style="margin-top:auto;text-decoration:underline">Open the page →</span></div>
+          <div class="fcard-face fcard-back"><span class="fcard-day">Answer</span><span class="fcard-a">${esc(t.a)}</span><span data-href="#a/${t.ref}" class="src fcard-link">Open the page →</span></div>
         </div>
       </button>`).join("");
   }
@@ -777,7 +838,7 @@
     $("#view-title").textContent = title || TITLES[view];
     document.title = view === "ask" && !title ? "Book of Knowledge" : `${title || TITLES[view]} · Book of Knowledge`;
     $(".topbar").classList.toggle("on-ask", view === "ask");
-    closeSheet();
+    closeSheet(); closeAskTA(); closeTopTA();
   }
   function route_() {
     const h = decodeURIComponent(location.hash.slice(1));

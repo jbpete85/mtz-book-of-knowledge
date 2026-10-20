@@ -16,10 +16,10 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Atkinson+Hyperlegible+Next:wght@400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/regular/style.css">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/fill/style.css">
-  <link rel="stylesheet" href="assets/styles.css?v=10">
+  <link rel="stylesheet" href="assets/styles.css?v=12">
 </head>
 <body>
 <div class="app">
@@ -61,10 +61,12 @@
     <header class="topbar">
       <img class="topbar-icon" src="icons/icon-192.png" alt="" width="28" height="28">
       <h1 class="topbar-title" id="view-title">Ask</h1>
-      <form class="topbar-search" id="top-search" role="search" autocomplete="off">
+      <form class="topbar-search ta" id="top-search" role="search" autocomplete="off">
         <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-        <input type="search" placeholder="Search the book" aria-label="Search the book">
+        <input type="search" placeholder="Search the book" aria-label="Search the book"
+          role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="top-ta">
         <kbd>/</kbd>
+        <ul class="ta-list" id="top-ta" role="listbox" aria-label="Matching pages" hidden></ul>
       </form>
       <button class="store-chip" id="store-chip" type="button" aria-label="Switch store"><i class="ph ph-storefront"></i><span>Plant</span></button>
     </header>
@@ -74,22 +76,26 @@
       <section data-view="ask">
         <form class="searchcard" id="ask-form" autocomplete="off" role="search">
           <label for="ask-input" class="searchcard-label">What's the customer asking?</label>
-          <div class="searchfield">
-            <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-            <input id="ask-input" type="search" placeholder="Type it the way they said it" enterkeyhint="search">
-            <button type="submit" class="btn btn-primary" aria-label="Look it up"><span class="hide-sm">Look it up</span><i class="ph ph-arrow-right show-sm"></i></button>
+          <div class="ta">
+            <div class="searchfield">
+              <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+              <input id="ask-input" type="search" placeholder="Type it the way they said it" enterkeyhint="search"
+                role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="ask-ta">
+              <button type="submit" class="btn btn-primary" aria-label="Look it up"><span class="hide-sm">Look it up</span><i class="ph ph-arrow-right show-sm"></i></button>
+            </div>
+            <ul class="ta-list" id="ask-ta" role="listbox" aria-label="Matching pages" hidden></ul>
           </div>
         </form>
 
         <div id="answer"></div>
 
         <div id="home">
-          <div class="tiles">
-            <a class="tile" href="#ready"><i class="ph-fill ph-clock"></i><b>Ready by</b><span>Promise times, calculated</span></a>
-            <a class="tile" href="#routes"><i class="ph-fill ph-truck"></i><b>Route days</b><span>What comes back when</span></a>
-            <a class="tile tile-red" href="#outage"><i class="ph-fill ph-warning-octagon"></i><b>Something broke</b><span>Internet, SPOT, card machine</span></a>
-            <a class="tile" href="#scripts"><i class="ph-fill ph-chat-text"></i><b>What to say</b><span>Exact words, tap to copy</span></a>
-          </div>
+          <nav class="toolrow" aria-label="Counter tools">
+            <a class="tool" href="#ready"><i class="ph-fill ph-clock"></i>Ready by</a>
+            <a class="tool" href="#routes"><i class="ph-fill ph-truck"></i>Route days</a>
+            <a class="tool tool-red" href="#outage"><i class="ph-fill ph-warning-octagon"></i>Something broke</a>
+            <a class="tool" href="#scripts"><i class="ph-fill ph-chat-text"></i>What to say</a>
+          </nav>
 
           <div class="list-block" id="recent-block" hidden>
             <div class="list-head"><span>Recent</span><button class="link-btn" id="clear-recent" type="button">Clear</button></div>
@@ -289,7 +295,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 
-<script src="assets/knowledge.js?v=10"></script>
-<script src="assets/app.js?v=10"></script>
+<script src="assets/knowledge.js?v=12"></script>
+<script src="assets/app.js?v=12"></script>
 </body>
 </html>

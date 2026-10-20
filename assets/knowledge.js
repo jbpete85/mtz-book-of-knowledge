@@ -3,15 +3,15 @@
 // or Enrique's discovery call (10/19). `gap` marks something the source material doesn't answer yet.
 
 window.CATEGORIES = {
-  dropoff:  { label: "Drop-off",          color: "var(--green)" },
-  garments: { label: "Garments & tags",   color: "var(--orange)" },
-  pickup:   { label: "Pickup",            color: "var(--blue)" },
-  special:  { label: "Special items",     color: "var(--plum)" },
-  recovery: { label: "Service recovery",  color: "var(--red)" },
-  services: { label: "Services & routes", color: "var(--blue)" },
-  outage:   { label: "When things break", color: "var(--red)" },
-  phone:    { label: "Phone & words",     color: "var(--green)" },
-  team:     { label: "Team policies",     color: "var(--ink-2)" }
+  dropoff: { label: "Drop-off", color: "var(--ink-3)" },
+  garments: { label: "Garments & tags", color: "var(--ink-3)" },
+  pickup: { label: "Pickup", color: "var(--ink-3)" },
+  special: { label: "Special items", color: "var(--ink-3)" },
+  recovery: { label: "Service recovery", color: "var(--ink-3)" },
+  services: { label: "Services & routes", color: "var(--ink-3)" },
+  outage: { label: "When things break", color: "var(--red)" },
+  phone: { label: "Phone & words", color: "var(--ink-3)" },
+  team: { label: "Team policies", color: "var(--ink-3)" }
 };
 
 window.KB = [
