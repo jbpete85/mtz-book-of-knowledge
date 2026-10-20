@@ -24,12 +24,18 @@
 
   // ── Store toggle ──
   let myStore = store.get("store", "plant");
+  const storeName = s => (s === "plant" ? "Plant" : "Target");
   function setStore(s) {
     myStore = s; store.set("store", s);
-    $$(".store-toggle button").forEach(b => b.setAttribute("aria-checked", String(b.dataset.store === s)));
+    $$(".seg-store button").forEach(b => b.setAttribute("aria-checked", String(b.dataset.store === s)));
     $$(".store-note").forEach(n => n.classList.toggle("is-mine", n.dataset.store === s));
+    $("#store-chip span").textContent = storeName(s);
   }
-  $$(".store-toggle button").forEach(b => b.addEventListener("click", () => setStore(b.dataset.store)));
+  $$(".seg-store button").forEach(b => b.addEventListener("click", () => setStore(b.dataset.store)));
+  $("#store-chip").addEventListener("click", () => {
+    setStore(myStore === "plant" ? "target" : "plant");
+    toast(`Showing ${storeName(myStore)} store notes`);
+  });
 
   // ── Search ──
   const STOP = new Set("a an the and or but to of in on at for is are was were be been it its this that i im i'm my me we our you your they their he she him her them can could do does did how what when where which who why will would should just get got have has had with from as about if so not no yes customer customers please there here want wants need needs say tell".split(" "));
@@ -82,7 +88,7 @@
   function catVar(a) { return `--cat:${CATS[a.cat].color}`; }
   function flag(a) { return `<span class="flag">${esc(CATS[a.cat].label)}</span>`; }
 
-  function articleHTML(a, related = []) {
+  function articleHTML(a) {
     let h = `<article class="ticket" style="${catVar(a)}">
       <div class="ticket-top">${flag(a)}<span class="ticket-id">No. ${String(KB.indexOf(a) + 1).padStart(3, "0")}</span></div>
       <h2>${esc(a.title)}</h2>`;
@@ -98,57 +104,83 @@
     }
     if (a.gap) h += `<div class="gapnote"><b>Not in the book yet · for Enrique</b>${esc(a.gap)}</div>`;
     const toolLink = { ready: ["#ready", "Open the ready-by calculator"], routes: ["#routes", "Open the route days"], outage: ["#outage/" + a.id, "Walk through it step by step"] }[a.tool];
-    h += `<div class="ticket-foot"><span class="src">Source · ${esc(a.src)}</span>${toolLink ? `<a class="btn btn-sm" href="${toolLink[0]}">${toolLink[1]} →</a>` : ""}</div></article>`;
-    if (related.length) h += `<div class="related"><div class="section-label">Also in the book</div><div class="related-list">${related.map(r => `<a href="#a/${r.id}">${esc(r.title)}</a>`).join("")}</div></div>`;
+    h += `<div class="ticket-foot"><span class="src">Source · ${esc(a.src)}</span>${toolLink ? `<a class="btn btn-sm" href="${toolLink[0]}">${toolLink[1]}<i class="ph ph-arrow-right"></i></a>` : ""}</div></article>`;
     return h;
   }
 
   // ── ASK ──
-  const askInput = $("#ask-input"), answer = $("#answer");
-  $("#chips").innerHTML = window.SUGGESTIONS.map(s => `<button type="button" class="chip">${esc(s)}</button>`).join("");
-  $("#chips").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) go("#ask/" + encodeURIComponent(c.textContent)); });
-  $("#ask-form").addEventListener("submit", e => { e.preventDefault(); const q = askInput.value.trim(); if (q) go("#ask/" + encodeURIComponent(q)); });
+  const askInput = $("#ask-input"), answer = $("#answer"), home = $("#home");
+  $("#ask-form").addEventListener("submit", e => { e.preventDefault(); const q = askInput.value.trim(); if (q) { askInput.blur(); go("#ask/" + encodeURIComponent(q)); } });
+  const topSearch = $("#top-search");
+  topSearch.addEventListener("submit", e => {
+    e.preventDefault(); const inp = topSearch.querySelector("input"); const q = inp.value.trim();
+    if (q) { inp.value = ""; inp.blur(); go("#ask/" + encodeURIComponent(q)); }
+  });
 
   const gapCount = KB.filter(a => a.gap).length;
-  $("#gap-count").textContent = gapCount;
+  $$("[data-gap-count]").forEach(el => el.textContent = gapCount);
+
+  // Rows: related pages, recents, common questions
+  const rowLink = (href, icon, text, sub = "") =>
+    `<li><a href="${href}"><i class="ph ${icon}"></i><span class="row-text">${esc(text)}${sub ? `<small>${esc(sub)}</small>` : ""}</span><i class="ph ph-caret-right chev"></i></a></li>`;
+  const relatedHTML = (label, items) => items.length
+    ? `<div class="related"><div class="list-head"><span>${label}</span></div><ul class="rows">${items.map(r => rowLink(`#a/${r.id}`, "ph-file-text", r.title, CATS[r.cat].label)).join("")}</ul></div>` : "";
+
+  $("#common").innerHTML = window.SUGGESTIONS.map(s => rowLink("#ask/" + encodeURIComponent(s), "ph-chat-circle-dots", s)).join("");
+
+  function pushRecent(item) {
+    const list = store.get("recent", []).filter(r => r.id !== item.id);
+    list.unshift(item);
+    store.set("recent", list.slice(0, 5));
+  }
+  function renderRecent() {
+    const list = store.get("recent", []).filter(r => byId[r.id]);
+    $("#recent-block").hidden = !list.length;
+    $("#recent").innerHTML = list.map(r => rowLink(`#a/${r.id}`, "ph-clock-counter-clockwise", byId[r.id].title, r.q ? `Asked: “${r.q}”` : "")).join("");
+  }
+  $("#clear-recent").addEventListener("click", () => { store.set("recent", []); renderRecent(); });
+
+  const backRow = `<div class="back-row"><a href="#ask"><i class="ph ph-arrow-left"></i>Home</a></div>`;
+  function setAnswer(html) { home.hidden = true; answer.innerHTML = backRow + html; }
 
   function renderAskEmpty() {
-    answer.innerHTML = `<div class="empty-hint">
-      <a class="hint" href="#browse"><span class="n">${KB.length}</span><span>pages from the CSR manual and employee handbook</span></a>
-      <a class="hint" href="#ready"><span class="n">0</span><span>promise times to memorize. The calculator does it.</span></a>
-      <a class="hint" href="#gaps"><span class="n">${gapCount}</span><span>questions the manual raises but doesn't answer yet</span></a>
-    </div>`;
+    askInput.value = "";
+    answer.innerHTML = "";
+    home.hidden = false;
+    renderRecent();
   }
   function renderAsk(q) {
     askInput.value = q;
     const res = search(q);
     if (!res.length || res[0].s < 3) {
       const near = res.slice(0, 3).map(r => r.a);
-      answer.innerHTML = `<article class="ticket nomatch" style="--cat:var(--gap)">
+      setAnswer(`<article class="ticket nomatch" style="--cat:var(--gap)">
         <div class="ticket-top"><span class="flag" style="color:var(--gap-ink)">No page for this yet</span></div>
         <h2>The book doesn't cover “${esc(q)}”</h2>
         <p class="muted">Tell the customer you'll find out, then check with the manager on duty. Log it so Enrique can add the answer.</p>
-        <button class="btn btn-primary" id="log-it">Add to Enrique's list</button>
-      </article>${near.length ? `<div class="related"><div class="section-label">Closest pages</div><div class="related-list">${near.map(r => `<a href="#a/${r.id}">${esc(r.title)}</a>`).join("")}</div></div>` : ""}`;
+        <button class="btn btn-primary" id="log-it"><i class="ph ph-paper-plane-tilt"></i>Add to Enrique's list</button>
+      </article>${relatedHTML("Closest pages", near)}`);
       $("#log-it").addEventListener("click", e => {
         const list = store.get("logged", []);
         if (!list.includes(q)) list.push(q);
         store.set("logged", list);
-        e.target.disabled = true; e.target.textContent = "Logged";
+        const b = e.currentTarget; b.disabled = true; b.innerHTML = '<i class="ph ph-check"></i>Logged';
         toast("Added to Enrique's list");
       });
       return;
     }
     const top = res[0].a;
     const related = res.slice(1, 4).filter(r => r.s >= 2.5).map(r => r.a);
-    answer.innerHTML = articleHTML(top, related);
+    pushRecent({ id: top.id, q });
+    setAnswer(articleHTML(top) + relatedHTML("Also in the book", related));
   }
   function renderArticle(id) {
     const a = byId[id];
     if (!a) return renderAskEmpty();
     askInput.value = "";
+    pushRecent({ id });
     const sameCat = KB.filter(x => x.cat === a.cat && x !== a).slice(0, 4);
-    answer.innerHTML = articleHTML(a, sameCat);
+    setAnswer(articleHTML(a) + relatedHTML(`More in ${CATS[a.cat].label}`, sameCat));
   }
 
   // ── Dates ──
@@ -427,14 +459,26 @@
   }
 
   // ── Router ──
+  const TITLES = { ask: "Ask", ready: "Ready by", routes: "Route days", outage: "Something broke", scripts: "What to say",
+    training: "Training", browse: "Browse the book", gaps: "Gaps for Enrique", plan: "The plan" };
+  const MORE = ["scripts", "training", "browse", "gaps", "plan"];
+
   function go(hash) { if (location.hash === hash) route_(); else location.hash = hash; }
-  function show(view) {
+  function setIcon(el, on) {
+    const i = el.querySelector("i"); if (!i) return;
+    i.classList.toggle("ph", !on); i.classList.toggle("ph-fill", on);
+  }
+  function show(view, title) {
     $$("[data-view]").forEach(s => s.hidden = s.dataset.view !== view);
-    $$(".tabs a").forEach(a => {
-      if (a.dataset.tab === view) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    $$(".side-nav a, .tabbar [data-tab]").forEach(a => {
+      const on = a.dataset.tab === view || (a.dataset.tab === "more" && MORE.includes(view));
+      if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+      setIcon(a, on);
     });
-    const cur = $(`.tabs a[data-tab="${view}"]`);
-    if (cur) cur.scrollIntoView({ block: "nearest", inline: "nearest" });
+    $("#view-title").textContent = title || TITLES[view];
+    document.title = view === "ask" && !title ? "Book of Knowledge" : `${title || TITLES[view]} · Book of Knowledge`;
+    $(".topbar").classList.toggle("on-ask", view === "ask");
+    closeSheet();
   }
   function route_() {
     const h = decodeURIComponent(location.hash.slice(1));
@@ -442,22 +486,58 @@
     const arg = rest.join("/");
     if (view !== "outage") stopTimer();
     switch (view) {
-      case "a": show("ask"); renderArticle(arg); break;
+      case "a": show("ask", byId[arg] ? CATS[byId[arg].cat].label : null); renderArticle(arg); break;
       case "ready": show("ready"); renderReady(); break;
       case "routes": show("routes"); renderWeek(); break;
       case "outage": show("outage"); renderOutage(arg); break;
       case "scripts": case "browse": case "plan": show(view); break;
       case "training": show("training"); renderTraining(); break;
       case "gaps": show("gaps"); renderLogged(); break;
-      case "ask": show("ask"); arg ? renderAsk(arg) : renderAskEmpty(); break;
+      case "ask": show("ask", arg ? "Answer" : null); arg ? renderAsk(arg) : renderAskEmpty(); break;
       default: show("ask"); renderAskEmpty();
     }
-    if (view && view !== "ask" && view !== "outage") window.scrollTo({ top: 0 });
-    if (window.innerWidth < 800 && ((view === "ask" && arg) || view === "a" || (view === "outage" && arg))) {
-      const target = view === "outage" ? $("#outage-out") : answer;
-      requestAnimationFrame(() => target.scrollIntoView({ block: "start" }));
-    }
+    if (view === "outage" && arg && window.innerWidth <= 760) requestAnimationFrame(() => $("#outage-out").scrollIntoView({ block: "start" }));
+    else window.scrollTo({ top: 0 });
   }
+
+  // ── More sheet (phone) ──
+  const sheet = $("#more-sheet"), scrim = $("#sheet-scrim");
+  function openSheet() { sheet.hidden = false; scrim.hidden = false; }
+  function closeSheet() { sheet.hidden = true; scrim.hidden = true; }
+  $("#more-btn").addEventListener("click", () => (sheet.hidden ? openSheet() : closeSheet()));
+  scrim.addEventListener("click", closeSheet);
+  sheet.addEventListener("click", e => { if (e.target.closest("a")) closeSheet(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeSheet();
+    // "/" jumps to search, like most desktop apps
+    if (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      const top = topSearch.querySelector("input");
+      (getComputedStyle(topSearch).display !== "none" && !$(".topbar").classList.contains("on-ask") ? top : askInput).focus();
+    }
+  });
+
+  // ── Install as an app ──
+  let installEvt = null;
+  window.addEventListener("beforeinstallprompt", e => {
+    e.preventDefault(); installEvt = e;
+    $$("[data-install]").forEach(b => b.hidden = false);
+  });
+  $$("[data-install]").forEach(b => b.addEventListener("click", async () => {
+    if (!installEvt) return;
+    installEvt.prompt();
+    await installEvt.userChoice.catch(() => {});
+    installEvt = null; $$("[data-install]").forEach(x => x.hidden = true);
+  }));
+  window.addEventListener("appinstalled", () => { $$("[data-install]").forEach(x => x.hidden = true); toast("Installed"); });
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) $("#ios-hint").hidden = false;
+
+  // ── Offline: cache the app after first load ──
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
+
   window.addEventListener("hashchange", route_);
   setStore(myStore);
   route_();

@@ -2,218 +2,271 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
   <title>Book of Knowledge</title>
   <meta name="description" content="Prototype counter assistant for Martinizing Cleaners of Flower Mound CSRs.">
+  <meta name="theme-color" content="#0A7A3F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Book">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=4">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='3' width='24' height='26' rx='3' fill='%230A7A3F'/%3E%3Ccircle cx='16' cy='9' r='3' fill='%23F5F2EA'/%3E%3Crect x='9' y='16' width='14' height='2.5' fill='%23F5F2EA'/%3E%3Crect x='9' y='21' width='10' height='2.5' fill='%23F5F2EA'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/regular/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/fill/style.css">
+  <link rel="stylesheet" href="assets/styles.css?v=6">
 </head>
 <body>
-  <header class="masthead">
-    <div class="wrap masthead-inner">
-      <a class="wordmark" href="#ask">
-        <span class="wordmark-sub">Martinizing Cleaners of Flower Mound</span>
-        <span class="wordmark-main">Book of Knowledge</span>
-      </a>
-      <div class="masthead-right">
-        <div class="store-toggle" role="radiogroup" aria-label="Your store">
-          <span class="store-label">My store</span>
-          <button role="radio" data-store="plant" aria-checked="true">Plant</button>
-          <button role="radio" data-store="target" aria-checked="false">Target</button>
+<div class="app">
+
+  <!-- Sidebar (tablet + desktop) -->
+  <aside class="sidebar" aria-label="App navigation">
+    <a class="brand" href="#ask">
+      <img src="icons/icon-192.png" alt="" width="36" height="36">
+      <span class="brand-text"><b>Book of Knowledge</b><small>Martinizing · Flower Mound</small></span>
+    </a>
+    <nav class="side-nav">
+      <div class="nav-group">At the counter</div>
+      <a href="#ask" data-tab="ask"><i class="ph ph-magnifying-glass"></i>Ask</a>
+      <a href="#ready" data-tab="ready"><i class="ph ph-clock"></i>Ready by</a>
+      <a href="#routes" data-tab="routes"><i class="ph ph-truck"></i>Routes</a>
+      <a href="#outage" data-tab="outage"><i class="ph ph-warning-octagon"></i>Something broke</a>
+      <a href="#scripts" data-tab="scripts"><i class="ph ph-chat-text"></i>What to say</a>
+      <div class="nav-group">Learn</div>
+      <a href="#training" data-tab="training"><i class="ph ph-graduation-cap"></i>Training</a>
+      <a href="#browse" data-tab="browse"><i class="ph ph-books"></i>Browse the book</a>
+      <div class="nav-group">For Enrique</div>
+      <a href="#gaps" data-tab="gaps"><i class="ph ph-note-pencil"></i>Gaps<span class="badge" data-gap-count></span></a>
+      <a href="#plan" data-tab="plan"><i class="ph ph-map-trifold"></i>The plan</a>
+    </nav>
+    <div class="side-foot">
+      <div class="list-head"><span>My store</span></div>
+      <div class="seg seg-store seg-full" role="radiogroup" aria-label="Your store">
+        <button role="radio" data-store="plant" aria-checked="true">Plant</button>
+        <button role="radio" data-store="target" aria-checked="false">Target</button>
+      </div>
+      <button class="btn btn-ghost btn-block" data-install hidden><i class="ph ph-download-simple"></i>Install app</button>
+      <p class="proto-note">Prototype · Kingside Group</p>
+    </div>
+  </aside>
+
+  <div class="main-col">
+    <!-- Top bar -->
+    <header class="topbar">
+      <img class="topbar-icon" src="icons/icon-192.png" alt="" width="28" height="28">
+      <h1 class="topbar-title" id="view-title">Ask</h1>
+      <form class="topbar-search" id="top-search" role="search" autocomplete="off">
+        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" placeholder="Search the book" aria-label="Search the book">
+        <kbd>/</kbd>
+      </form>
+      <button class="store-chip" id="store-chip" type="button" aria-label="Switch store"><i class="ph ph-storefront"></i><span>Plant</span></button>
+    </header>
+
+    <main class="content" id="main">
+      <!-- ASK / HOME -->
+      <section data-view="ask">
+        <form class="searchcard" id="ask-form" autocomplete="off" role="search">
+          <label for="ask-input" class="searchcard-label">What's the customer asking?</label>
+          <div class="searchfield">
+            <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+            <input id="ask-input" type="search" placeholder="Type it the way they said it" enterkeyhint="search">
+            <button type="submit" class="btn btn-primary" aria-label="Look it up"><span class="hide-sm">Look it up</span><i class="ph ph-arrow-right show-sm"></i></button>
+          </div>
+        </form>
+
+        <div id="answer"></div>
+
+        <div id="home">
+          <div class="tiles">
+            <a class="tile" href="#ready"><i class="ph-fill ph-clock"></i><b>Ready by</b><span>Promise times, calculated</span></a>
+            <a class="tile" href="#routes"><i class="ph-fill ph-truck"></i><b>Route days</b><span>What comes back when</span></a>
+            <a class="tile tile-red" href="#outage"><i class="ph-fill ph-warning-octagon"></i><b>Something broke</b><span>Internet, SPOT, card machine</span></a>
+            <a class="tile" href="#scripts"><i class="ph-fill ph-chat-text"></i><b>What to say</b><span>Exact words, tap to copy</span></a>
+          </div>
+
+          <div class="list-block" id="recent-block" hidden>
+            <div class="list-head"><span>Recent</span><button class="link-btn" id="clear-recent" type="button">Clear</button></div>
+            <ul class="rows" id="recent"></ul>
+          </div>
+
+          <div class="list-block">
+            <div class="list-head"><span>Common at the counter</span></div>
+            <ul class="rows" id="common"></ul>
+          </div>
         </div>
-        <span class="stamp" title="Built from the CSR Training Manual and Employee Handbook">Prototype</span>
+      </section>
+
+      <!-- READY BY -->
+      <section data-view="ready" hidden>
+        <p class="view-sub">Enter the drop-off. Get the exact promise to say out loud.</p>
+        <div class="split">
+          <form class="panel form" id="ready-form">
+            <div class="field-row">
+              <label>Drop-off date<input type="date" name="date" required></label>
+              <label>Time<input type="time" name="time" required></label>
+            </div>
+            <fieldset class="options" id="svc-options">
+              <legend>What are they dropping off?</legend>
+            </fieldset>
+            <label class="check"><input type="checkbox" name="holdout"> Stained items, and they're okay with a holdout</label>
+            <label>Customer name <span class="muted">(optional)</span><input type="text" name="name" placeholder="Mr. Jones"></label>
+          </form>
+          <div id="ready-out" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- ROUTES -->
+      <section data-view="routes" hidden>
+        <p class="view-sub">Routes run in pairs. Pick the customer's route to see what comes back when.</p>
+        <div class="panel">
+          <div class="seg" role="radiogroup" aria-label="Route" id="route-seg">
+            <button role="radio" data-route="mw" aria-checked="true">Mon / Wed route</button>
+            <button role="radio" data-route="tt" aria-checked="false">Tue / Thu route</button>
+          </div>
+          <div class="week" id="week"></div>
+          <blockquote class="say" id="route-say"></blockquote>
+        </div>
+
+        <div class="split">
+          <form class="panel form" id="instore-form">
+            <h2 class="panel-title">Dropped off in store, delivered home</h2>
+            <div class="field-row">
+              <label>Drop-off date<input type="date" name="date" required></label>
+              <label>Time<input type="time" name="time" required></label>
+            </div>
+          </form>
+          <div id="instore-out" aria-live="polite"></div>
+        </div>
+
+        <div class="panel future">
+          <div class="future-tag">Connected version</div>
+          <h2 class="panel-title">Which route is this address on?</h2>
+          <div class="searchfield is-disabled"><i class="ph ph-map-pin" aria-hidden="true"></i><input type="text" disabled placeholder="Type an address…"><button class="btn" type="button" disabled>Check</button></div>
+          <p class="muted">Once the book reads from SPOT, a CSR types the address and gets the route, next pickup day, and the sentence to say. No guessing, no “let me ask Enrique.”</p>
+        </div>
+      </section>
+
+      <!-- OUTAGE -->
+      <section data-view="outage" hidden>
+        <p class="view-sub">Customer at the counter, system down. Pick what's not working.</p>
+        <div class="outage-pick" id="outage-pick">
+          <button data-o="internet" type="button"><i class="ph ph-wifi-slash"></i>Internet / SPOT won't load</button>
+          <button data-o="spotdown" type="button"><i class="ph ph-monitor"></i>SPOT is down</button>
+          <button data-o="carddown" type="button"><i class="ph ph-credit-card"></i>Card machine</button>
+        </div>
+        <div id="outage-out"></div>
+      </section>
+
+      <!-- SCRIPTS -->
+      <section data-view="scripts" hidden>
+        <p class="view-sub">The exact words from the manual. Tap to copy.</p>
+        <div class="script-grid" id="scripts"></div>
+      </section>
+
+      <!-- TRAINING -->
+      <section data-view="training" hidden>
+        <p class="view-sub">The five-day assessments, answered from the book. Tap a card to flip it.</p>
+        <div class="seg seg-scroll" role="radiogroup" aria-label="Training day" id="day-seg"></div>
+        <div class="cards" id="cards"></div>
+      </section>
+
+      <!-- BROWSE -->
+      <section data-view="browse" hidden>
+        <p class="view-sub" id="browse-count"></p>
+        <div class="browse" id="browse"></div>
+      </section>
+
+      <!-- GAPS -->
+      <section data-view="gaps" hidden>
+        <p class="view-sub">Questions the manual raises but doesn't answer, found while building this prototype. Each one is a sentence or two from Enrique.</p>
+        <ol class="gaps" id="gaps"></ol>
+        <div class="panel" id="logged-wrap" hidden>
+          <h2 class="panel-title">Logged from the counter</h2>
+          <p class="muted">Questions a CSR asked that the book couldn't answer. In the live version these go straight to Enrique's list.</p>
+          <ul class="logged" id="logged"></ul>
+        </div>
+      </section>
+
+      <!-- PLAN -->
+      <section data-view="plan" hidden>
+        <p class="view-sub">This prototype is step one. Each step works on its own, and each one builds on the last.</p>
+        <ol class="plan">
+          <li class="plan-step is-here">
+            <div class="plan-kicker">Crawl · this prototype</div>
+            <h2>The book, searchable at the counter</h2>
+            <p>Your manual and handbook, reorganized around what customers actually ask. Promise times and route days calculated instead of remembered. Outage playbooks a CSR can follow under pressure.</p>
+            <ul>
+              <li>Installs like an app on the counter computer, a tablet, or a phone</li>
+              <li>Separate notes for each store, ready for a third and fourth</li>
+              <li>Hosted on its own, outside corporate's website</li>
+            </ul>
+          </li>
+          <li class="plan-step">
+            <div class="plan-kicker">Walk</div>
+            <h2>A counter assistant that answers in plain English</h2>
+            <p>Claude reads the whole book and answers any phrasing: “lady says her husband's suit came back with a shiny spot, what do I do.” Every answer cites the page it came from. When the book doesn't cover something, it says so and sends the question to you.</p>
+            <ul>
+              <li>You update the book by telling Claude what changed</li>
+              <li>Gaps get filled as they come up, not in a yearly rewrite</li>
+            </ul>
+          </li>
+          <li class="plan-step">
+            <div class="plan-kicker">Run</div>
+            <h2>Connected to SPOT</h2>
+            <p>Address-to-route lookup. A welcome text and FAQ for new pickup &amp; delivery customers. Reminder health checks so a failed text gets caught before a customer notices.</p>
+            <ul>
+              <li>Depends on what SPOT exposes. That's the first thing we'd check.</li>
+            </ul>
+          </li>
+        </ol>
+        <p class="proto-fine">Built by Kingside Group from the CSR Training Manual and the Employee Handbook (rev. June 2026). Route pairs from our 10/19 call. Answers in this version are matched from the book; the next version adds Claude.</p>
+      </section>
+    </main>
+  </div>
+
+  <!-- Bottom tab bar (phone) -->
+  <nav class="tabbar" aria-label="Main">
+    <a href="#ask" data-tab="ask"><i class="ph ph-magnifying-glass"></i><span>Ask</span></a>
+    <a href="#ready" data-tab="ready"><i class="ph ph-clock"></i><span>Ready by</span></a>
+    <a href="#routes" data-tab="routes"><i class="ph ph-truck"></i><span>Routes</span></a>
+    <a href="#outage" data-tab="outage"><i class="ph ph-warning-octagon"></i><span>Broke</span></a>
+    <button type="button" data-tab="more" id="more-btn" aria-haspopup="dialog"><i class="ph ph-dots-three-circle"></i><span>More</span></button>
+  </nav>
+
+  <!-- More sheet (phone) -->
+  <div class="sheet-scrim" id="sheet-scrim" hidden></div>
+  <div class="sheet" id="more-sheet" role="dialog" aria-modal="true" aria-label="More" hidden>
+    <div class="sheet-grab" aria-hidden="true"></div>
+    <ul class="rows sheet-rows">
+      <li><a href="#scripts" data-tab="scripts"><i class="ph ph-chat-text"></i><span>What to say</span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#training" data-tab="training"><i class="ph ph-graduation-cap"></i><span>Training</span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#browse" data-tab="browse"><i class="ph ph-books"></i><span>Browse the book</span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#gaps" data-tab="gaps"><i class="ph ph-note-pencil"></i><span>Gaps for Enrique</span><span class="badge" data-gap-count></span><i class="ph ph-caret-right chev"></i></a></li>
+      <li><a href="#plan" data-tab="plan"><i class="ph ph-map-trifold"></i><span>The plan</span><i class="ph ph-caret-right chev"></i></a></li>
+    </ul>
+    <div class="sheet-section">
+      <div class="list-head"><span>My store</span></div>
+      <div class="seg seg-store seg-full" role="radiogroup" aria-label="Your store">
+        <button role="radio" data-store="plant" aria-checked="true">Plant</button>
+        <button role="radio" data-store="target" aria-checked="false">Target</button>
       </div>
     </div>
-    <nav class="tabs" aria-label="Sections">
-      <div class="wrap tabs-inner">
-        <a href="#ask" data-tab="ask">Ask</a>
-        <a href="#ready" data-tab="ready">Ready by</a>
-        <a href="#routes" data-tab="routes">Routes</a>
-        <a href="#outage" data-tab="outage">Something broke</a>
-        <a href="#scripts" data-tab="scripts">What to say</a>
-        <a href="#training" data-tab="training">Training</a>
-        <a href="#browse" data-tab="browse">Browse</a>
-        <a href="#gaps" data-tab="gaps">Gaps <span class="badge" id="gap-count"></span></a>
-        <a href="#plan" data-tab="plan">The plan</a>
-      </div>
-    </nav>
-  </header>
-
-  <main class="wrap" id="main">
-    <!-- ASK -->
-    <section data-view="ask">
-      <form class="ask" id="ask-form" autocomplete="off">
-        <label for="ask-input" class="ask-label">What's the customer asking?</label>
-        <div class="ask-row">
-          <input id="ask-input" type="search" placeholder="e.g. “Can I get on a delivery route?”" enterkeyhint="search">
-          <button type="submit" class="btn btn-primary">Look it up</button>
-        </div>
-        <div class="chips" id="chips"></div>
-      </form>
-      <div id="answer"></div>
-    </section>
-
-    <!-- READY BY -->
-    <section data-view="ready" hidden>
-      <div class="view-head">
-        <h1>When will it be ready?</h1>
-        <p>Enter the drop-off. Get the exact promise to say out loud.</p>
-      </div>
-      <div class="split">
-        <form class="panel form" id="ready-form">
-          <div class="field-row">
-            <label>Drop-off date<input type="date" name="date" required></label>
-            <label>Time<input type="time" name="time" required></label>
-          </div>
-          <fieldset class="options" id="svc-options">
-            <legend>What are they dropping off?</legend>
-          </fieldset>
-          <label class="check"><input type="checkbox" name="holdout"> Stained items, and they're okay with a holdout</label>
-          <label>Customer name <span class="muted">(optional)</span><input type="text" name="name" placeholder="Mr. Jones"></label>
-        </form>
-        <div id="ready-out" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <!-- ROUTES -->
-    <section data-view="routes" hidden>
-      <div class="view-head">
-        <h1>Pickup &amp; delivery days</h1>
-        <p>Routes run in pairs. Pick the customer's route to see what comes back when.</p>
-      </div>
-      <div class="panel">
-        <div class="seg" role="radiogroup" aria-label="Route" id="route-seg">
-          <button role="radio" data-route="mw" aria-checked="true">Mon / Wed route</button>
-          <button role="radio" data-route="tt" aria-checked="false">Tue / Thu route</button>
-        </div>
-        <div class="week" id="week"></div>
-        <blockquote class="say" id="route-say"></blockquote>
-      </div>
-
-      <div class="split">
-        <form class="panel form" id="instore-form">
-          <h2 class="panel-title">Dropped off in store, delivered home</h2>
-          <div class="field-row">
-            <label>Drop-off date<input type="date" name="date" required></label>
-            <label>Time<input type="time" name="time" required></label>
-          </div>
-        </form>
-        <div id="instore-out" aria-live="polite"></div>
-      </div>
-
-      <div class="panel future">
-        <div class="future-tag">Connected version</div>
-        <h2 class="panel-title">Which route is this address on?</h2>
-        <div class="ask-row"><input type="text" disabled placeholder="Type an address…"><button class="btn" disabled>Check</button></div>
-        <p class="muted">Once the book reads from SPOT, a CSR types the address and gets the route, next pickup day, and the sentence to say. No guessing, no “let me ask Enrique.”</p>
-      </div>
-    </section>
-
-    <!-- OUTAGE -->
-    <section data-view="outage" hidden>
-      <div class="view-head">
-        <h1>Something broke</h1>
-        <p>Customer at the counter, system down. Pick what's not working.</p>
-      </div>
-      <div class="outage-pick" id="outage-pick">
-        <button data-o="internet"><span class="o-icon" aria-hidden="true">⌁</span>Internet / SPOT won't load</button>
-        <button data-o="spotdown"><span class="o-icon" aria-hidden="true">▤</span>SPOT is down</button>
-        <button data-o="carddown"><span class="o-icon" aria-hidden="true">▭</span>Card machine</button>
-      </div>
-      <div id="outage-out"></div>
-    </section>
-
-    <!-- SCRIPTS -->
-    <section data-view="scripts" hidden>
-      <div class="view-head">
-        <h1>What to say</h1>
-        <p>The exact words from the manual. Tap to copy.</p>
-      </div>
-      <div class="script-grid" id="scripts"></div>
-    </section>
-
-    <!-- TRAINING -->
-    <section data-view="training" hidden>
-      <div class="view-head">
-        <h1>Training checks</h1>
-        <p>The five-day assessments, answered from the book. Tap a card to flip it.</p>
-      </div>
-      <div class="seg" role="radiogroup" aria-label="Training day" id="day-seg"></div>
-      <div class="cards" id="cards"></div>
-    </section>
-
-    <!-- BROWSE -->
-    <section data-view="browse" hidden>
-      <div class="view-head">
-        <h1>Browse the book</h1>
-        <p id="browse-count"></p>
-      </div>
-      <div class="browse" id="browse"></div>
-    </section>
-
-    <!-- GAPS -->
-    <section data-view="gaps" hidden>
-      <div class="view-head">
-        <h1>Not in the book yet</h1>
-        <p>Questions the manual raises but doesn't answer, found while building this prototype. Each one is a sentence or two from Enrique.</p>
-      </div>
-      <ol class="gaps" id="gaps"></ol>
-      <div class="panel" id="logged-wrap" hidden>
-        <h2 class="panel-title">Logged from the counter</h2>
-        <p class="muted">Questions a CSR asked that the book couldn't answer. In the live version these go straight to Enrique's list.</p>
-        <ul class="logged" id="logged"></ul>
-      </div>
-    </section>
-
-    <!-- PLAN -->
-    <section data-view="plan" hidden>
-      <div class="view-head">
-        <h1>Where this goes</h1>
-        <p>This prototype is step one. Each step works on its own, and each one builds on the last.</p>
-      </div>
-      <ol class="plan">
-        <li class="plan-step is-here">
-          <div class="plan-kicker">Crawl · this prototype</div>
-          <h2>The book, searchable at the counter</h2>
-          <p>Your manual and handbook, reorganized around what customers actually ask. Promise times and route days calculated instead of remembered. Outage playbooks a CSR can follow under pressure.</p>
-          <ul>
-            <li>Works on the counter computer, a tablet, or a phone</li>
-            <li>Separate notes for each store, ready for a third and fourth</li>
-            <li>Hosted on its own, outside corporate's website</li>
-          </ul>
-        </li>
-        <li class="plan-step">
-          <div class="plan-kicker">Walk</div>
-          <h2>A counter assistant that answers in plain English</h2>
-          <p>Claude reads the whole book and answers any phrasing: “lady says her husband's suit came back with a shiny spot, what do I do.” Every answer cites the page it came from. When the book doesn't cover something, it says so and sends the question to you.</p>
-          <ul>
-            <li>You update the book by telling Claude what changed</li>
-            <li>Gaps get filled as they come up, not in a yearly rewrite</li>
-          </ul>
-        </li>
-        <li class="plan-step">
-          <div class="plan-kicker">Run</div>
-          <h2>Connected to SPOT</h2>
-          <p>Address-to-route lookup. A welcome text and FAQ for new pickup &amp; delivery customers. Reminder health checks so a failed text gets caught before a customer notices.</p>
-          <ul>
-            <li>Depends on what SPOT exposes. That's the first thing we'd check.</li>
-          </ul>
-        </li>
-      </ol>
-    </section>
-  </main>
-
-  <footer class="wrap foot">
-    <p>Prototype built by Kingside Group from the CSR Training Manual and the Employee Handbook (rev. June 2026). Route pairs from our 10/19 call. Answers in this version are matched from the book; the next version adds Claude.</p>
-  </footer>
+    <div class="sheet-section">
+      <button class="btn btn-primary btn-block" data-install hidden><i class="ph ph-download-simple"></i>Install app</button>
+      <p class="muted ios-hint" id="ios-hint" hidden><i class="ph ph-export"></i> On iPhone: tap Share, then “Add to Home Screen.”</p>
+    </div>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
 
-  <script src="assets/knowledge.js?v=4"></script>
-  <script src="assets/app.js?v=4"></script>
+<script src="assets/knowledge.js?v=6"></script>
+<script src="assets/app.js?v=6"></script>
 </body>
 </html>
